@@ -2,6 +2,7 @@ package com.aviacao.gerenciamento_pilotos.service;
 
 import com.aviacao.gerenciamento_pilotos.domain.entity.Aluno;
 import com.aviacao.gerenciamento_pilotos.domain.entity.Autorizacao;
+import com.aviacao.gerenciamento_pilotos.domain.entity.Teste;
 import com.aviacao.gerenciamento_pilotos.domain.enums.StatusTeste;
 import com.aviacao.gerenciamento_pilotos.exception.BusinessException;
 import com.aviacao.gerenciamento_pilotos.exception.NotFoundException;
@@ -50,8 +51,11 @@ public class AutorizacaoService {
         Aluno aluno = alunoRepository.findById(alunoId)
                 .orElseThrow(() -> new NotFoundException("Aluno não encontrado com ID: " + alunoId));
 
+        // Pegar o teste mais recente do aluno
+        Teste testeAtual = aluno.getTesteAtual();
+
         // Validar se o aluno está aprovado
-        if (aluno.getTeste() == null || aluno.getTeste().getStatus() != StatusTeste.APROVADO) {
+        if (testeAtual == null || testeAtual.getStatus() != StatusTeste.APROVADO) {
             throw new BusinessException("Aluno precisa estar aprovado para ser autorizado");
         }
 
