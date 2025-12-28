@@ -52,7 +52,7 @@ public class AlunoController {
     }
 
     @GetMapping("/passaporte/{passaporte}")
-    public ResponseEntity<AlunoDTO> buscarPorPassaporte(@PathVariable String passaporte) {
+    public ResponseEntity<AlunoDTO> buscarPorPassaporte(@PathVariable Integer passaporte) {
         Aluno aluno = alunoService.buscarPorPassaporte(passaporte);
         return ResponseEntity.ok(AlunoDTO.fromEntity(aluno));
     }

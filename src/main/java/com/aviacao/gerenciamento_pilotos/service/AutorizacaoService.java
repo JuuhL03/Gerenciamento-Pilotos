@@ -21,7 +21,6 @@ import java.util.List;
 public class AutorizacaoService {
 
     private final AutorizacaoRepository autorizacaoRepository;
-    private final AlunoService alunoService;
     private final AlunoRepository alunoRepository;
 
     @Transactional(readOnly = true)
@@ -36,8 +35,7 @@ public class AutorizacaoService {
 
     @Transactional(readOnly = true)
     public List<Autorizacao> listarPorAluno(Long alunoId) {
-        Aluno aluno = alunoService.buscarPorId(alunoId);
-        return autorizacaoRepository.findByAlunoOrderByDataAutorizacaoDesc(aluno);
+        return autorizacaoRepository.findByAlunoIdOrderByDataAutorizacaoDesc(alunoId);
     }
 
     @Transactional(readOnly = true)
@@ -51,10 +49,10 @@ public class AutorizacaoService {
         Aluno aluno = alunoRepository.findById(alunoId)
                 .orElseThrow(() -> new NotFoundException("Aluno não encontrado com ID: " + alunoId));
 
-        // Pegar o teste mais recente do aluno
+        // Pegar o teste mais recente usando o método helper
         Teste testeAtual = aluno.getTesteAtual();
 
-        // Validar se o aluno está aprovado
+        // Validar se o aluno tem teste e se está aprovado
         if (testeAtual == null || testeAtual.getStatus() != StatusTeste.APROVADO) {
             throw new BusinessException("Aluno precisa estar aprovado para ser autorizado");
         }
@@ -71,8 +69,8 @@ public class AutorizacaoService {
     }
 
     @Transactional
-    public void revogarAutorizacao(Long autorizacaoId) {
-        Autorizacao autorizacao = buscarPorId(autorizacaoId);
+    public void revogarAutorizacao(Long id) {
+        Autorizacao autorizacao = buscarPorId(id);
         autorizacao.setAtiva(false);
         autorizacaoRepository.save(autorizacao);
     }

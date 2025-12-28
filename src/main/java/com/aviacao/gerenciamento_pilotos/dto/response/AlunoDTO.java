@@ -18,7 +18,7 @@ public class AlunoDTO {
 
     private Long id;
     private String nome;
-    private String passaporte;
+    private Integer passaporte;
     private String telefone;
     private Boolean autorizado;
     private List<TesteDTO> testes;  // ← TODOS os testes, ordenados
@@ -38,7 +38,7 @@ public class AlunoDTO {
                 .passaporte(aluno.getPassaporte())
                 .telefone(aluno.getTelefone())
                 .autorizado(aluno.getAutorizado())
-                .testes(testesOrdenados)
+                .testes(testesOrdenados)  // ← Lista completa ordenada
                 .dataCriacao(aluno.getDataCriacao())
                 .dataUltimaAtualizacao(aluno.getDataUltimaAtualizacao())
                 .build();

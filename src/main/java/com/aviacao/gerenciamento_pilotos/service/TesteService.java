@@ -48,6 +48,13 @@ public class TesteService {
     public Teste cadastrarTeste(Long alunoId, Long avaliadorId) {
         Aluno aluno = alunoService.buscarPorId(alunoId);
 
+        // Verificar se existe teste em andamento
+        Teste testeAtual = aluno.getTesteAtual();
+
+        if (testeAtual != null && testeAtual.getStatus() == StatusTeste.EM_ANDAMENTO) {
+            throw new BusinessException("Aluno já possui um teste em andamento. Finalize o teste atual antes de criar um novo.");
+        }
+
         Teste teste = new Teste();
         teste.setAluno(aluno);
         teste.setStatus(StatusTeste.EM_ANDAMENTO);

@@ -18,7 +18,7 @@ public class AutorizacaoDTO {
     private Long id;
     private Long alunoId;
     private String alunoNome;
-    private String alunoPassaporte;
+    private Integer alunoPassaporte;
     private LocalDateTime dataAutorizacao;
     private LocalDate dataValidade;
     private Boolean ativa;

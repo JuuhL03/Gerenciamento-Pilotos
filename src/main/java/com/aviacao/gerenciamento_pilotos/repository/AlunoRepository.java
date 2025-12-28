@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface AlunoRepository extends JpaRepository<Aluno, Long>, JpaSpecificationExecutor<Aluno> {
 
-    Optional<Aluno> findByPassaporte(String passaporte);
+    Optional<Aluno> findByPassaporte(Integer passaporte);  // ← MUDOU
 
-    boolean existsByPassaporte(String passaporte);
+    boolean existsByPassaporte(Integer passaporte);  // ← MUDOU
 }

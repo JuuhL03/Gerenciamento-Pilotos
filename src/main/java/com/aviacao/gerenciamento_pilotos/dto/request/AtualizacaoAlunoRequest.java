@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class AtualizacaoAlunoRequest {
 
     private String nome;
-    private String passaporte;
+    private Integer passaporte;
     private String telefone;
     private Boolean autorizado;
 }

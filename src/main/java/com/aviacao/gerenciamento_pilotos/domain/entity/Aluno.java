@@ -23,8 +23,8 @@ public class Aluno {
     @Column(nullable = false, length = 100)
     private String nome;
 
-    @Column(unique = true, nullable = false, length = 20)
-    private String passaporte;
+    @Column(unique = true, nullable = false)
+    private Integer passaporte;
 
     @Column(nullable = false, length = 20)
     private String telefone;
@@ -38,7 +38,7 @@ public class Aluno {
     @Column(name = "data_ultima_atualizacao")
     private LocalDateTime dataUltimaAtualizacao;
 
-    @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Teste> testes = new ArrayList<>();
 
     @PrePersist

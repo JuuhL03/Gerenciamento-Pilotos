@@ -36,7 +36,7 @@ public class AlunoService {
     }
 
     @Transactional(readOnly = true)
-    public Aluno buscarPorPassaporte(String passaporte) {
+    public Aluno buscarPorPassaporte(Integer passaporte) {
         return alunoRepository.findByPassaporte(passaporte)
                 .orElseThrow(() -> new NotFoundException("Aluno não encontrado com passaporte: " + passaporte));
     }
@@ -85,7 +85,7 @@ public class AlunoService {
         alunoRepository.delete(aluno);
     }
 
-    private void validarPassaporteUnico(String passaporte) {
+    private void validarPassaporteUnico(Integer passaporte) {
         if (alunoRepository.existsByPassaporte(passaporte)) {
             throw new BusinessException("Passaporte já cadastrado");
         }

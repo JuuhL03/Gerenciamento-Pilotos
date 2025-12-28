@@ -16,7 +16,7 @@ public class AlunoResumoDTO {
 
     private Long id;
     private String nome;
-    private String passaporte;
+    private Integer passaporte;
     private String telefone;
     private Boolean autorizado;
     private TesteDTO testeAtual;  // ← Apenas o teste mais recente

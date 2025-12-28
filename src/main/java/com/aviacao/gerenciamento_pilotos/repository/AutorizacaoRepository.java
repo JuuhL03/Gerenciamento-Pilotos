@@ -9,18 +9,13 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface AutorizacaoRepository extends JpaRepository<Autorizacao, Long>, JpaSpecificationExecutor<Autorizacao> {
 
-    List<Autorizacao> findByAlunoOrderByDataAutorizacaoDesc(Aluno aluno);
-
-    Optional<Autorizacao> findByAlunoAndAtivaTrue(Aluno aluno);
+    Page<Autorizacao> findByAtivaTrue(Pageable pageable);
 
     boolean existsByAlunoAndAtivaTrue(Aluno aluno);
 
-    Page<Autorizacao> findByAtivaTrue(Pageable pageable);
-
-    Page<Autorizacao> findByAtivaFalse(Pageable pageable);
+    List<Autorizacao> findByAlunoIdOrderByDataAutorizacaoDesc(Long alunoId);
 }
