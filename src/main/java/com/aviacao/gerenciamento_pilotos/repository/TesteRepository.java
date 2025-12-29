@@ -21,4 +21,13 @@ public interface TesteRepository extends JpaRepository<Teste, Long>, JpaSpecific
     List<Teste> findByStatus(StatusTeste status);
 
     boolean existsByAlunoId(Long alunoId);
+
+    long countByAlunoId(Long alunoId);
+
+    Optional<Teste> findByAlunoIdAndStatus(Long alunoId, StatusTeste status);
+
+    boolean existsByAlunoIdAndStatus(Long alunoId, StatusTeste status);
+
+    @Query("SELECT COUNT(t) FROM Teste t WHERE t.aluno.id = :alunoId AND t.status = :status")
+    long countByAlunoIdAndStatus(Long alunoId, StatusTeste status);
 }

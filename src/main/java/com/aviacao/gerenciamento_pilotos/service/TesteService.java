@@ -8,6 +8,8 @@ import com.aviacao.gerenciamento_pilotos.exception.BusinessException;
 import com.aviacao.gerenciamento_pilotos.exception.NotFoundException;
 import com.aviacao.gerenciamento_pilotos.repository.TesteRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,11 @@ public class TesteService {
     private final TesteRepository testeRepository;
     private final AlunoService alunoService;
     private final UsuarioService usuarioService;
+
+    @Transactional(readOnly = true)
+    public Page<Teste> listarTodos(Pageable pageable) {
+        return testeRepository.findAll(pageable);
+    }
 
     @Transactional(readOnly = true)
     public Teste buscarPorId(Long id) {
@@ -48,10 +55,9 @@ public class TesteService {
     public Teste cadastrarTeste(Long alunoId, Long avaliadorId) {
         Aluno aluno = alunoService.buscarPorId(alunoId);
 
-        // Verificar se existe teste em andamento
-        Teste testeAtual = aluno.getTesteAtual();
+        boolean temTesteEmAndamento = testeRepository.existsByAlunoIdAndStatus(alunoId, StatusTeste.EM_ANDAMENTO);
 
-        if (testeAtual != null && testeAtual.getStatus() == StatusTeste.EM_ANDAMENTO) {
+        if (temTesteEmAndamento) {
             throw new BusinessException("Aluno já possui um teste em andamento. Finalize o teste atual antes de criar um novo.");
         }
 
@@ -112,15 +118,18 @@ public class TesteService {
     @Transactional
     public Teste alterarStatus(Long testeId, StatusTeste novoStatus) {
         Teste teste = buscarPorId(testeId);
+        Long alunoId = teste.getAluno().getId();
 
         if (novoStatus == StatusTeste.EM_ANDAMENTO && teste.getStatus() != StatusTeste.EM_ANDAMENTO) {
-            Aluno aluno = teste.getAluno();
-            Teste testeAtual = aluno.getTesteAtual();
+            long testesEmAndamento = testeRepository.countByAlunoIdAndStatus(alunoId, StatusTeste.EM_ANDAMENTO);
 
-            if (testeAtual != null &&
-                    !testeAtual.getId().equals(testeId) &&
-                    testeAtual.getStatus() == StatusTeste.EM_ANDAMENTO) {
-                throw new BusinessException("Aluno já possui outro teste em andamento (ID: " + testeAtual.getId() + "). Finalize-o antes de alterar este teste.");
+            if (testesEmAndamento > 0) {
+                Teste testeEmAndamento = testeRepository.findByAlunoIdAndStatus(alunoId, StatusTeste.EM_ANDAMENTO)
+                        .orElse(null);
+
+                if (testeEmAndamento != null && !testeEmAndamento.getId().equals(testeId)) {
+                    throw new BusinessException("Aluno já possui outro teste em andamento (ID: " + testeEmAndamento.getId() + "). Finalize-o antes de alterar este teste.");
+                }
             }
         }
 
