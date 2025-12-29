@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Entity
@@ -55,13 +56,12 @@ public class Aluno {
         dataUltimaAtualizacao = LocalDateTime.now();
     }
 
-    // Método helper para pegar o teste mais recente
     public Teste getTesteAtual() {
         if (testes == null || testes.isEmpty()) {
             return null;
         }
         return testes.stream()
-                .max((t1, t2) -> t1.getId().compareTo(t2.getId()))
+                .max(Comparator.comparing(Teste::getId))
                 .orElse(null);
     }
 }

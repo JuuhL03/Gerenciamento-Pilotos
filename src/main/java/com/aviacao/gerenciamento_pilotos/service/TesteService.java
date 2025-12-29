@@ -42,8 +42,11 @@ public class TesteService {
 
     @Transactional(readOnly = true)
     public Teste buscarTesteAtual(Long alunoId) {
-        return testeRepository.findTesteAtualByAlunoId(alunoId)
-                .orElseThrow(() -> new NotFoundException("Nenhum teste encontrado para o aluno ID: " + alunoId));
+        List<Teste> testes = testeRepository.findByAlunoIdOrderByIdDesc(alunoId);
+        if (testes.isEmpty()) {
+            throw new NotFoundException("Nenhum teste encontrado para o aluno ID: " + alunoId);
+        }
+        return testes.get(0);
     }
 
     @Transactional(readOnly = true)
