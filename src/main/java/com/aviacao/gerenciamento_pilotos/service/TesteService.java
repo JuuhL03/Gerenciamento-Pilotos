@@ -112,6 +112,18 @@ public class TesteService {
     @Transactional
     public Teste alterarStatus(Long testeId, StatusTeste novoStatus) {
         Teste teste = buscarPorId(testeId);
+
+        if (novoStatus == StatusTeste.EM_ANDAMENTO && teste.getStatus() != StatusTeste.EM_ANDAMENTO) {
+            Aluno aluno = teste.getAluno();
+            Teste testeAtual = aluno.getTesteAtual();
+
+            if (testeAtual != null &&
+                    !testeAtual.getId().equals(testeId) &&
+                    testeAtual.getStatus() == StatusTeste.EM_ANDAMENTO) {
+                throw new BusinessException("Aluno já possui outro teste em andamento (ID: " + testeAtual.getId() + "). Finalize-o antes de alterar este teste.");
+            }
+        }
+
         teste.setStatus(novoStatus);
 
         if (novoStatus == StatusTeste.APROVADO || novoStatus == StatusTeste.REPROVADO) {

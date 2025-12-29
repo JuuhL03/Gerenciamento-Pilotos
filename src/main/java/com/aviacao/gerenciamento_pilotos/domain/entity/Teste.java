@@ -37,6 +37,9 @@ public class Teste {
     @Column(name = "data_finalizacao")
     private LocalDateTime dataFinalizacao;
 
+    @OneToOne(mappedBy = "teste", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Pagamento pagamento;
+
     @PrePersist
     protected void onCreate() {
         dataCriacao = LocalDateTime.now();

@@ -1,13 +1,10 @@
 package com.aviacao.gerenciamento_pilotos.domain.entity;
 
-import com.aviacao.gerenciamento_pilotos.domain.enums.StatusPagamento;
-import com.aviacao.gerenciamento_pilotos.domain.enums.TipoPagamento;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,32 +18,33 @@ public class Pagamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "aluno_id", nullable = false)
-    private Aluno aluno;
+    @OneToOne
+    @JoinColumn(name = "teste_id", unique = true, nullable = false)
+    private Teste teste;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal valor;
+    @Column(nullable = false)
+    private Boolean pago = false;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private TipoPagamento tipo;
+    @Column(name = "comprovante_nome")
+    private String comprovanteNome;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private StatusPagamento status = StatusPagamento.PENDENTE;
+    @Column(name = "comprovante_tipo")
+    private String comprovanteTipo;  // mimetype (image/jpeg, image/png, etc)
 
-    @Column(name = "data_geracao", updatable = false)
-    private LocalDateTime dataGeracao;
+    @Column(name = "comprovante_tamanho")
+    private Long comprovanteTamanho;  // tamanho em bytes
+
+    @Lob
+    @Column(name = "comprovante_dados", columnDefinition = "LONGBLOB")
+    private byte[] comprovanteDados;  // imagem em bytes
 
     @Column(name = "data_pagamento")
     private LocalDateTime dataPagamento;
 
-    @Column(name = "comprovante_path", length = 255)
-    private String comprovantePath;
-
     @PrePersist
     protected void onCreate() {
-        dataGeracao = LocalDateTime.now();
+        if (dataPagamento == null) {
+            dataPagamento = LocalDateTime.now();
+        }
     }
 }

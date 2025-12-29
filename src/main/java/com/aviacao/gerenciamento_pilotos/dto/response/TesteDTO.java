@@ -23,6 +23,7 @@ public class TesteDTO {
     private String avaliadorNome;
     private LocalDateTime dataCriacao;
     private LocalDateTime dataFinalizacao;
+    private PagamentoDTO pagamento;  // ← NOVO
 
     public static TesteDTO fromEntity(Teste teste) {
         return TesteDTO.builder()
@@ -34,6 +35,7 @@ public class TesteDTO {
                 .avaliadorNome(teste.getAvaliador() != null ? teste.getAvaliador().getNome() : null)
                 .dataCriacao(teste.getDataCriacao())
                 .dataFinalizacao(teste.getDataFinalizacao())
+                .pagamento(PagamentoDTO.fromEntity(teste.getPagamento(), false))
                 .build();
     }
 }
