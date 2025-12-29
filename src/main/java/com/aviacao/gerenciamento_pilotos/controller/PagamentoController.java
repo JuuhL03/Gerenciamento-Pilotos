@@ -43,13 +43,20 @@ public class PagamentoController {
 
     @PostMapping
     public ResponseEntity<PagamentoDTO> cadastrar(@Valid @RequestBody CadastrarPagamentoRequest request) {
-        Pagamento pagamento = pagamentoService.cadastrar(
-                request.getTesteId(),
-                request.getComprovanteBase64(),
-                request.getComprovanteNome(),
-                request.getComprovanteTipo()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(PagamentoDTO.fromEntity(pagamento, false));
+        try {
+            Pagamento pagamento = pagamentoService.cadastrar(
+                    request.getTesteId(),
+                    request.getComprovanteBase64(),
+                    request.getComprovanteNome(),
+                    request.getComprovanteTipo()
+            );
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(PagamentoDTO.fromEntity(pagamento, false));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @PutMapping("/teste/{testeId}")

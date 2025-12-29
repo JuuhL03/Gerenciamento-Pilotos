@@ -1,17 +1,14 @@
 package com.aviacao.gerenciamento_pilotos.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "pagamento")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Pagamento {
 
     @Id
@@ -23,28 +20,22 @@ public class Pagamento {
     private Teste teste;
 
     @Column(nullable = false)
-    private Boolean pago = false;
+    private Boolean pago = true;
 
     @Column(name = "comprovante_nome")
     private String comprovanteNome;
 
     @Column(name = "comprovante_tipo")
-    private String comprovanteTipo;  // mimetype (image/jpeg, image/png, etc)
+    private String comprovanteTipo;
 
     @Column(name = "comprovante_tamanho")
-    private Long comprovanteTamanho;  // tamanho em bytes
+    private Long comprovanteTamanho;
 
     @Lob
     @Column(name = "comprovante_dados", columnDefinition = "LONGBLOB")
-    private byte[] comprovanteDados;  // imagem em bytes
+    private byte[] comprovanteDados;
 
-    @Column(name = "data_pagamento")
+    @CreationTimestamp
+    @Column(name = "data_pagamento", updatable = false)
     private LocalDateTime dataPagamento;
-
-    @PrePersist
-    protected void onCreate() {
-        if (dataPagamento == null) {
-            dataPagamento = LocalDateTime.now();
-        }
-    }
 }

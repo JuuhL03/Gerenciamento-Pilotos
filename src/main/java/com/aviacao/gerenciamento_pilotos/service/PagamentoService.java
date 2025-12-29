@@ -32,21 +32,14 @@ public class PagamentoService {
 
     @Transactional
     public Pagamento cadastrar(Long testeId, String comprovanteBase64, String comprovanteNome, String comprovanteTipo) {
-        Teste teste = testeService.buscarPorId(testeId);
 
-        // Verificar se já existe pagamento para este teste
-        if (pagamentoRepository.existsByTesteId(testeId)) {
+        Teste teste = testeService.buscarPorId(testeId);
+        boolean jaExiste = pagamentoRepository.existsByTesteId(testeId);
+
+        if (jaExiste) {
             throw new BusinessException("Teste já possui pagamento cadastrado");
         }
-
-        // Decodificar base64 para bytes
-        byte[] comprovanteBytes;
-        try {
-            comprovanteBytes = Base64.getDecoder().decode(comprovanteBase64);
-        } catch (IllegalArgumentException e) {
-            throw new BusinessException("Comprovante base64 inválido");
-        }
-
+        byte[] comprovanteBytes = decodificarBase64(comprovanteBase64);
         Pagamento pagamento = new Pagamento();
         pagamento.setTeste(teste);
         pagamento.setPago(true);
@@ -55,7 +48,9 @@ public class PagamentoService {
         pagamento.setComprovanteTamanho((long) comprovanteBytes.length);
         pagamento.setComprovanteDados(comprovanteBytes);
 
-        return pagamentoRepository.save(pagamento);
+        Pagamento saved = pagamentoRepository.save(pagamento);
+
+        return saved;
     }
 
     @Transactional
