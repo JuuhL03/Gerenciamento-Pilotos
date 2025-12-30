@@ -55,11 +55,14 @@ public class PagamentoService {
     }
 
     @Transactional
-    public Pagamento atualizar(Long testeId, String comprovanteBase64, String comprovanteNome, String comprovanteTipo) {
+    public Pagamento atualizar(Long testeId, BigDecimal valor, String comprovanteBase64, String comprovanteNome, String comprovanteTipo) {
         Pagamento pagamento = buscarPorTesteId(testeId);
 
         byte[] comprovanteBytes = decodificarBase64(comprovanteBase64);
 
+        if (valor != null) {
+            pagamento.setValor(valor);
+        }
         pagamento.setComprovanteNome(comprovanteNome);
         pagamento.setComprovanteTipo(comprovanteTipo);
         pagamento.setComprovanteTamanho((long) comprovanteBytes.length);

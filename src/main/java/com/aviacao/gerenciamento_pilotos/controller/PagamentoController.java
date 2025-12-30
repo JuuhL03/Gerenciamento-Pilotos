@@ -1,6 +1,7 @@
 package com.aviacao.gerenciamento_pilotos.controller;
 
 import com.aviacao.gerenciamento_pilotos.domain.entity.Pagamento;
+import com.aviacao.gerenciamento_pilotos.dto.request.AtualizarPagamentoRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.CadastrarPagamentoRequest;
 import com.aviacao.gerenciamento_pilotos.dto.response.PagamentoDTO;
 import com.aviacao.gerenciamento_pilotos.exception.BusinessException;
@@ -59,13 +60,16 @@ public class PagamentoController {
     @PutMapping("/teste/{testeId}")
     public ResponseEntity<PagamentoDTO> atualizar(
             @PathVariable Long testeId,
-            @Valid @RequestBody CadastrarPagamentoRequest request) {
+            @Valid @RequestBody AtualizarPagamentoRequest request) {
+
         Pagamento pagamento = pagamentoService.atualizar(
                 testeId,
+                request.getValor(),
                 request.getComprovanteBase64(),
                 request.getComprovanteNome(),
                 request.getComprovanteTipo()
         );
+
         return ResponseEntity.ok(PagamentoDTO.fromEntity(pagamento, false));
     }
 
