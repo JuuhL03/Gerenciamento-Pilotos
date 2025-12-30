@@ -9,6 +9,10 @@ import com.aviacao.gerenciamento_pilotos.dto.response.TesteDTO;
 import com.aviacao.gerenciamento_pilotos.service.TesteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +28,19 @@ public class TesteController {
     private final TesteService testeService;
 
     @GetMapping
-    public ResponseEntity<List<TesteDTO>> listarTodos(
+    public ResponseEntity<Page<TesteDTO>> listarTodos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "DESC") String direction,
             @RequestParam(defaultValue = "false") boolean incluirComprovante) {
-        List<Teste> testes = testeService.listarTodos();
-        List<TesteDTO> response = testes.stream()
-                .map(t -> TesteDTO.fromEntity(t, incluirComprovante))
-                .collect(Collectors.toList());
+
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+
+        Page<Teste> testes = testeService.listarTodos(pageable);
+        Page<TesteDTO> response = testes.map(t -> TesteDTO.fromEntity(t, incluirComprovante));
+
         return ResponseEntity.ok(response);
     }
 
