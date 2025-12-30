@@ -131,7 +131,7 @@ public class TesteService {
                         .orElse(null);
 
                 if (testeEmAndamento != null && !testeEmAndamento.getId().equals(testeId)) {
-                    throw new BusinessException("Aluno já possui outro teste em andamento (ID: " + testeEmAndamento.getId() + "). Finalize-o antes de alterar este teste.");
+                    throw new BusinessException("Aluno já possui outro teste em andamento (Passaporte: " + testeEmAndamento.getAluno().getPassaporte() + "). Finalize-o antes de alterar este teste.");
                 }
             }
         }

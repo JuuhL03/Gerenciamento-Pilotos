@@ -45,38 +45,15 @@ public class PagamentoController {
 
     @PostMapping
     public ResponseEntity<PagamentoDTO> cadastrar(@Valid @RequestBody CadastrarPagamentoRequest request) {
-        System.out.println("========================================");
-        System.out.println("📨 POST /api/pagamentos");
-        System.out.println("🔹 TesteId: " + request.getTesteId());
-        System.out.println("🔹 Nome: " + request.getComprovanteNome());
-        System.out.println("🔹 Tipo: " + request.getComprovanteTipo());
-        System.out.println("🔹 Base64 length: " + (request.getComprovanteBase64() != null ? request.getComprovanteBase64().length() : "NULL"));
-        System.out.println("========================================");
+        Pagamento pagamento = pagamentoService.cadastrar(
+                request.getTesteId(),
+                request.getValor(), // ← ADICIONE!
+                request.getComprovanteBase64(),
+                request.getComprovanteNome(),
+                request.getComprovanteTipo()
+        );
 
-        try {
-            Pagamento pagamento = pagamentoService.cadastrar(
-                    request.getTesteId(),
-                    request.getComprovanteBase64(),
-                    request.getComprovanteNome(),
-                    request.getComprovanteTipo()
-            );
-
-            System.out.println("✅ Pagamento cadastrado com sucesso! ID: " + pagamento.getId());
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(PagamentoDTO.fromEntity(pagamento, false));
-
-        } catch (NotFoundException e) {
-            System.err.println("❌ NOT FOUND: " + e.getMessage());
-            throw e;
-        } catch (BusinessException e) {
-            System.err.println("❌ BUSINESS EXCEPTION: " + e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            System.err.println("❌ ERRO INESPERADO: " + e.getClass().getName());
-            System.err.println("❌ Mensagem: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(PagamentoDTO.fromEntity(pagamento, false));
     }
 
     @PutMapping("/teste/{testeId}")

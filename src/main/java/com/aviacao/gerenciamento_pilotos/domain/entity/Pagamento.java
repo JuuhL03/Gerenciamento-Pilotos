@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,8 +20,15 @@ public class Pagamento {
     @JoinColumn(name = "teste_id", unique = true, nullable = false)
     private Teste teste;
 
+    @ManyToOne
+    @JoinColumn(name = "aluno_id", nullable = false)
+    private Aluno aluno;
+
     @Column(nullable = false)
     private Boolean pago = true;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal valor;
 
     @Column(name = "comprovante_nome")
     private String comprovanteNome;
