@@ -3,6 +3,8 @@ package com.aviacao.gerenciamento_pilotos.controller;
 import com.aviacao.gerenciamento_pilotos.domain.entity.Pagamento;
 import com.aviacao.gerenciamento_pilotos.dto.request.CadastrarPagamentoRequest;
 import com.aviacao.gerenciamento_pilotos.dto.response.PagamentoDTO;
+import com.aviacao.gerenciamento_pilotos.exception.BusinessException;
+import com.aviacao.gerenciamento_pilotos.exception.NotFoundException;
 import com.aviacao.gerenciamento_pilotos.service.PagamentoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,14 @@ public class PagamentoController {
 
     @PostMapping
     public ResponseEntity<PagamentoDTO> cadastrar(@Valid @RequestBody CadastrarPagamentoRequest request) {
+        System.out.println("========================================");
+        System.out.println("📨 POST /api/pagamentos");
+        System.out.println("🔹 TesteId: " + request.getTesteId());
+        System.out.println("🔹 Nome: " + request.getComprovanteNome());
+        System.out.println("🔹 Tipo: " + request.getComprovanteTipo());
+        System.out.println("🔹 Base64 length: " + (request.getComprovanteBase64() != null ? request.getComprovanteBase64().length() : "NULL"));
+        System.out.println("========================================");
+
         try {
             Pagamento pagamento = pagamentoService.cadastrar(
                     request.getTesteId(),
@@ -51,9 +61,19 @@ public class PagamentoController {
                     request.getComprovanteTipo()
             );
 
+            System.out.println("✅ Pagamento cadastrado com sucesso! ID: " + pagamento.getId());
+
             return ResponseEntity.status(HttpStatus.CREATED).body(PagamentoDTO.fromEntity(pagamento, false));
 
+        } catch (NotFoundException e) {
+            System.err.println("❌ NOT FOUND: " + e.getMessage());
+            throw e;
+        } catch (BusinessException e) {
+            System.err.println("❌ BUSINESS EXCEPTION: " + e.getMessage());
+            throw e;
         } catch (Exception e) {
+            System.err.println("❌ ERRO INESPERADO: " + e.getClass().getName());
+            System.err.println("❌ Mensagem: " + e.getMessage());
             e.printStackTrace();
             throw e;
         }
