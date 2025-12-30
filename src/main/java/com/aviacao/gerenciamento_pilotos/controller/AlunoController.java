@@ -7,8 +7,10 @@ import com.aviacao.gerenciamento_pilotos.dto.request.AlterarStatusTesteRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.AtribuirAvaliadorRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.AtualizacaoAlunoRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.CadastroAlunoRequest;
+import com.aviacao.gerenciamento_pilotos.dto.response.AlunoAeronaveDTO;
 import com.aviacao.gerenciamento_pilotos.dto.response.AlunoDTO;
 import com.aviacao.gerenciamento_pilotos.dto.response.AlunoResumoDTO;
+import com.aviacao.gerenciamento_pilotos.service.AlunoAeronaveService;
 import com.aviacao.gerenciamento_pilotos.service.AlunoService;
 import com.aviacao.gerenciamento_pilotos.service.TesteService;
 import jakarta.validation.Valid;
@@ -19,6 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/alunos")
 @RequiredArgsConstructor
@@ -26,6 +30,7 @@ public class AlunoController {
 
     private final AlunoService alunoService;
     private final TesteService testeService;
+    private final AlunoAeronaveService alunoAeronaveService;
 
     @GetMapping
     public ResponseEntity<Page<AlunoResumoDTO>> listar(
@@ -137,5 +142,29 @@ public class AlunoController {
         aluno.setAutorizado(false);
         Aluno alunoAtualizado = alunoService.atualizar(id, aluno);
         return ResponseEntity.ok(AlunoDTO.fromEntity(alunoAtualizado));
+    }
+
+    @GetMapping("/{alunoId}/aeronaves")
+    public ResponseEntity<List<AlunoAeronaveDTO>> listarAeronavesDoAluno(@PathVariable Long alunoId) {
+        List<AlunoAeronaveDTO> aeronaves = alunoAeronaveService.listarAeronavesDoAluno(alunoId);
+        return ResponseEntity.ok(aeronaves);
+    }
+
+    @PostMapping("/{alunoId}/aeronaves/{aeronaveId}/autorizar")
+    public ResponseEntity<Void> autorizarAeronave(
+            @PathVariable Long alunoId,
+            @PathVariable Long aeronaveId) {
+
+        alunoAeronaveService.autorizarAluno(alunoId, aeronaveId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{alunoId}/aeronaves/{aeronaveId}/desautorizar")
+    public ResponseEntity<Void> desautorizarAeronave(
+            @PathVariable Long alunoId,
+            @PathVariable Long aeronaveId) {
+
+        alunoAeronaveService.desautorizarAluno(alunoId, aeronaveId);
+        return ResponseEntity.ok().build();
     }
 }

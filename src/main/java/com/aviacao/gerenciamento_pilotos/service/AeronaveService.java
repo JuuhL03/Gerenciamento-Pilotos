@@ -1,12 +1,12 @@
 package com.aviacao.gerenciamento_pilotos.service;
 
 import com.aviacao.gerenciamento_pilotos.domain.entity.Aeronave;
+import com.aviacao.gerenciamento_pilotos.dto.request.AtualizarAeronaveRequest;
+import com.aviacao.gerenciamento_pilotos.dto.request.CadastrarAeronaveRequest;
 import com.aviacao.gerenciamento_pilotos.exception.BusinessException;
 import com.aviacao.gerenciamento_pilotos.exception.NotFoundException;
 import com.aviacao.gerenciamento_pilotos.repository.AeronaveRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +19,8 @@ public class AeronaveService {
     private final AeronaveRepository aeronaveRepository;
 
     @Transactional(readOnly = true)
-    public Page<Aeronave> listarTodas(Pageable pageable) {
-        return aeronaveRepository.findAll(pageable);
+    public List<Aeronave> listarTodos() {
+        return aeronaveRepository.findAll();
     }
 
     @Transactional(readOnly = true)
@@ -35,44 +35,54 @@ public class AeronaveService {
     }
 
     @Transactional
-    public Aeronave cadastrar(Aeronave aeronave) {
-        validarNomeUnico(aeronave.getNome());
+    public Aeronave cadastrar(CadastrarAeronaveRequest request) {
+        if (aeronaveRepository.existsByNome(request.getNome())) {
+            throw new BusinessException("Já existe uma aeronave com o nome: " + request.getNome());
+        }
+
+        Aeronave aeronave = new Aeronave();
+        aeronave.setNome(request.getNome());
         aeronave.setAtiva(true);
+
         return aeronaveRepository.save(aeronave);
     }
 
     @Transactional
-    public Aeronave atualizar(Long id, Aeronave aeronaveAtualizada) {
+    public Aeronave atualizar(Long id, AtualizarAeronaveRequest request) {
         Aeronave aeronave = buscarPorId(id);
 
-        if (aeronaveAtualizada.getNome() != null && !aeronaveAtualizada.getNome().equals(aeronave.getNome())) {
-            validarNomeUnico(aeronaveAtualizada.getNome());
-            aeronave.setNome(aeronaveAtualizada.getNome());
+        if (request.getNome() != null) {
+            if (aeronaveRepository.existsByNomeAndIdNot(request.getNome(), id)) {
+                throw new BusinessException("Já existe uma aeronave com o nome: " + request.getNome());
+            }
+            aeronave.setNome(request.getNome());
         }
 
-        if (aeronaveAtualizada.getCategoria() != null) {
-            aeronave.setCategoria(aeronaveAtualizada.getCategoria());
+        if (request.getAtiva() != null) {
+            aeronave.setAtiva(request.getAtiva());
         }
 
         return aeronaveRepository.save(aeronave);
     }
 
     @Transactional
-    public void inativar(Long id) {
+    public void deletar(Long id) {
         Aeronave aeronave = buscarPorId(id);
         aeronave.setAtiva(false);
         aeronaveRepository.save(aeronave);
     }
 
     @Transactional
-    public void deletar(Long id) {
+    public Aeronave ativar(Long id) {
         Aeronave aeronave = buscarPorId(id);
-        aeronaveRepository.delete(aeronave);
+        aeronave.setAtiva(true);
+        return aeronaveRepository.save(aeronave);
     }
 
-    private void validarNomeUnico(String nome) {
-        if (aeronaveRepository.existsByNome(nome)) {
-            throw new BusinessException("Nome de aeronave já cadastrado");
-        }
+    @Transactional
+    public Aeronave desativar(Long id) {
+        Aeronave aeronave = buscarPorId(id);
+        aeronave.setAtiva(false);
+        return aeronaveRepository.save(aeronave);
     }
 }

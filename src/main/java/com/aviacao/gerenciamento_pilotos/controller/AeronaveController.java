@@ -1,13 +1,12 @@
 package com.aviacao.gerenciamento_pilotos.controller;
 
 import com.aviacao.gerenciamento_pilotos.domain.entity.Aeronave;
-import com.aviacao.gerenciamento_pilotos.dto.request.CadastroAeronaveRequest;
+import com.aviacao.gerenciamento_pilotos.dto.request.AtualizarAeronaveRequest;
+import com.aviacao.gerenciamento_pilotos.dto.request.CadastrarAeronaveRequest;
 import com.aviacao.gerenciamento_pilotos.dto.response.AeronaveDTO;
 import com.aviacao.gerenciamento_pilotos.service.AeronaveService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +22,11 @@ public class AeronaveController {
     private final AeronaveService aeronaveService;
 
     @GetMapping
-    public ResponseEntity<Page<AeronaveDTO>> listar(Pageable pageable) {
-        Page<Aeronave> aeronaves = aeronaveService.listarTodas(pageable);
-        Page<AeronaveDTO> response = aeronaves.map(AeronaveDTO::fromEntity);
+    public ResponseEntity<List<AeronaveDTO>> listarTodas() {
+        List<Aeronave> aeronaves = aeronaveService.listarTodos();
+        List<AeronaveDTO> response = aeronaves.stream()
+                .map(AeronaveDTO::fromEntity)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
 
@@ -45,31 +46,35 @@ public class AeronaveController {
     }
 
     @PostMapping
-    public ResponseEntity<AeronaveDTO> cadastrar(@Valid @RequestBody CadastroAeronaveRequest request) {
-        Aeronave aeronave = new Aeronave();
-        aeronave.setNome(request.getNome());
-        aeronave.setCategoria(request.getCategoria());
-
-        Aeronave aeronaveCriada = aeronaveService.cadastrar(aeronave);
-        return ResponseEntity.status(HttpStatus.CREATED).body(AeronaveDTO.fromEntity(aeronaveCriada));
+    public ResponseEntity<AeronaveDTO> cadastrar(@Valid @RequestBody CadastrarAeronaveRequest request) {
+        Aeronave aeronave = aeronaveService.cadastrar(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(AeronaveDTO.fromEntity(aeronave));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AeronaveDTO> atualizar(
             @PathVariable Long id,
-            @Valid @RequestBody CadastroAeronaveRequest request) {
+            @Valid @RequestBody AtualizarAeronaveRequest request) {
 
-        Aeronave aeronave = new Aeronave();
-        aeronave.setNome(request.getNome());
-        aeronave.setCategoria(request.getCategoria());
-
-        Aeronave aeronaveAtualizada = aeronaveService.atualizar(id, aeronave);
-        return ResponseEntity.ok(AeronaveDTO.fromEntity(aeronaveAtualizada));
+        Aeronave aeronave = aeronaveService.atualizar(id, request);
+        return ResponseEntity.ok(AeronaveDTO.fromEntity(aeronave));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        aeronaveService.inativar(id);
+        aeronaveService.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/ativar")
+    public ResponseEntity<AeronaveDTO> ativar(@PathVariable Long id) {
+        Aeronave aeronave = aeronaveService.ativar(id);
+        return ResponseEntity.ok(AeronaveDTO.fromEntity(aeronave));
+    }
+
+    @PatchMapping("/{id}/desativar")
+    public ResponseEntity<AeronaveDTO> desativar(@PathVariable Long id) {
+        Aeronave aeronave = aeronaveService.desativar(id);
+        return ResponseEntity.ok(AeronaveDTO.fromEntity(aeronave));
     }
 }

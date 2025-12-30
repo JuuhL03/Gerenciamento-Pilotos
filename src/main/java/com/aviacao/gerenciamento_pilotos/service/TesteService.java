@@ -26,28 +26,23 @@ public class TesteService {
 
     @Transactional(readOnly = true)
     public Page<Teste> listarTodos(Pageable pageable) {
-        return testeRepository.findAll(pageable);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Teste> listarTodos() {
-        return testeRepository.findAll();
+        return testeRepository.findByAtivoTrue(pageable);
     }
 
     @Transactional(readOnly = true)
     public Teste buscarPorId(Long id) {
-        return testeRepository.findById(id)
+        return testeRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new NotFoundException("Teste não encontrado com ID: " + id));
     }
 
     @Transactional(readOnly = true)
     public List<Teste> listarPorAluno(Long alunoId) {
-        return testeRepository.findByAlunoIdOrderByIdDesc(alunoId);
+        return testeRepository.findByAlunoIdAndAtivoTrueOrderByIdDesc(alunoId);
     }
 
     @Transactional(readOnly = true)
     public Teste buscarTesteAtual(Long alunoId) {
-        List<Teste> testes = testeRepository.findByAlunoIdOrderByIdDesc(alunoId);
+        List<Teste> testes = testeRepository.findByAlunoIdAndAtivoTrueOrderByIdDesc(alunoId);
         if (testes.isEmpty()) {
             throw new NotFoundException("Nenhum teste encontrado para o aluno ID: " + alunoId);
         }
@@ -56,7 +51,7 @@ public class TesteService {
 
     @Transactional(readOnly = true)
     public List<Teste> listarPorStatus(StatusTeste status) {
-        return testeRepository.findByStatus(status);
+        return testeRepository.findByStatusAndAtivoTrue(status);
     }
 
     @Transactional
@@ -72,6 +67,7 @@ public class TesteService {
         Teste teste = new Teste();
         teste.setAluno(aluno);
         teste.setStatus(StatusTeste.EM_ANDAMENTO);
+        teste.setAtivo(true);
 
         if (avaliadorId != null) {
             Usuario avaliador = usuarioService.buscarPorId(avaliadorId);
@@ -155,6 +151,7 @@ public class TesteService {
     @Transactional
     public void deletar(Long id) {
         Teste teste = buscarPorId(id);
-        testeRepository.delete(teste);
+        teste.setAtivo(false);
+        testeRepository.save(teste);
     }
 }

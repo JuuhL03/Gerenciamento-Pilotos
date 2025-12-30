@@ -6,7 +6,7 @@ import com.aviacao.gerenciamento_pilotos.domain.enums.StatusTeste;
 import com.aviacao.gerenciamento_pilotos.exception.BusinessException;
 import com.aviacao.gerenciamento_pilotos.exception.NotFoundException;
 import com.aviacao.gerenciamento_pilotos.repository.AlunoRepository;
-import com.aviacao.gerenciamento_pilotos.repository.specification.AlunoSpecification;
+import com.aviacao.gerenciamento_pilotos.repository.TesteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,41 +18,55 @@ import org.springframework.transaction.annotation.Transactional;
 public class AlunoService {
 
     private final AlunoRepository alunoRepository;
+    private final TesteRepository testeRepository;
 
     @Transactional(readOnly = true)
     public Page<Aluno> listarTodos(Pageable pageable) {
-        return alunoRepository.findAll(pageable);
+        return alunoRepository.findByAtivoTrue(pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<Aluno> listarComFiltros(String busca, StatusTeste status, Pageable pageable) {
-        return alunoRepository.findAll(AlunoSpecification.comFiltros(busca, status), pageable);
+        if (busca != null && status != null) {
+            return alunoRepository.findByBuscaAndStatusAndAtivoTrue(busca, status, pageable);
+        } else if (busca != null) {
+            return alunoRepository.findByBuscaAndAtivoTrue(busca, pageable);
+        } else if (status != null) {
+            return alunoRepository.findByStatusAndAtivoTrue(status, pageable);
+        }
+        return alunoRepository.findByAtivoTrue(pageable);
     }
 
     @Transactional(readOnly = true)
     public Aluno buscarPorId(Long id) {
-        return alunoRepository.findById(id)
+        return alunoRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new NotFoundException("Aluno não encontrado com ID: " + id));
     }
 
     @Transactional(readOnly = true)
     public Aluno buscarPorPassaporte(Integer passaporte) {
-        return alunoRepository.findByPassaporte(passaporte)
+        return alunoRepository.findByPassaporteAndAtivoTrue(passaporte)
                 .orElseThrow(() -> new NotFoundException("Aluno não encontrado com passaporte: " + passaporte));
     }
 
     @Transactional
     public Aluno cadastrar(Aluno aluno) {
-        validarPassaporteUnico(aluno.getPassaporte());
+        if (alunoRepository.existsByPassaporte(aluno.getPassaporte())) {
+            throw new BusinessException("Já existe um aluno com o passaporte: " + aluno.getPassaporte());
+        }
 
-        // Criar teste automaticamente com status EM_ANDAMENTO
-        Teste teste = new Teste();
-        teste.setAluno(aluno);
-        teste.setStatus(StatusTeste.EM_ANDAMENTO);
+        aluno.setAutorizado(false);
+        aluno.setAtivo(true);
 
-        aluno.getTestes().add(teste);
+        Aluno alunoSalvo = alunoRepository.save(aluno);
 
-        return alunoRepository.save(aluno);
+        Teste primeiroTeste = new Teste();
+        primeiroTeste.setAluno(alunoSalvo);
+        primeiroTeste.setStatus(StatusTeste.EM_ANDAMENTO);
+        primeiroTeste.setAtivo(true);
+        testeRepository.save(primeiroTeste);
+
+        return alunoSalvo;
     }
 
     @Transactional
@@ -63,8 +77,10 @@ public class AlunoService {
             aluno.setNome(alunoAtualizado.getNome());
         }
 
-        if (alunoAtualizado.getPassaporte() != null && !alunoAtualizado.getPassaporte().equals(aluno.getPassaporte())) {
-            validarPassaporteUnico(alunoAtualizado.getPassaporte());
+        if (alunoAtualizado.getPassaporte() != null) {
+            if (alunoRepository.existsByPassaporteAndIdNot(alunoAtualizado.getPassaporte(), id)) {
+                throw new BusinessException("Já existe um aluno com o passaporte: " + alunoAtualizado.getPassaporte());
+            }
             aluno.setPassaporte(alunoAtualizado.getPassaporte());
         }
 
@@ -82,12 +98,7 @@ public class AlunoService {
     @Transactional
     public void deletar(Long id) {
         Aluno aluno = buscarPorId(id);
-        alunoRepository.delete(aluno);
-    }
-
-    private void validarPassaporteUnico(Integer passaporte) {
-        if (alunoRepository.existsByPassaporte(passaporte)) {
-            throw new BusinessException("Passaporte já cadastrado");
-        }
+        aluno.setAtivo(false);
+        alunoRepository.save(aluno);
     }
 }
