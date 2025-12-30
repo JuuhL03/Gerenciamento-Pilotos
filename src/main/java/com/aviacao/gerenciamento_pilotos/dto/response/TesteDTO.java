@@ -18,24 +18,32 @@ public class TesteDTO {
     private Long id;
     private Long alunoId;
     private String alunoNome;
+    private Integer alunoPassaporte;
+    private String alunoTelefone;
     private StatusTeste status;
     private Long avaliadorId;
     private String avaliadorNome;
     private LocalDateTime dataCriacao;
     private LocalDateTime dataFinalizacao;
-    private PagamentoDTO pagamento;  // ← NOVO
+    private PagamentoDTO pagamento;
 
     public static TesteDTO fromEntity(Teste teste) {
+        return fromEntity(teste, false);
+    }
+
+    public static TesteDTO fromEntity(Teste teste, boolean incluirComprovante) {
         return TesteDTO.builder()
                 .id(teste.getId())
                 .alunoId(teste.getAluno() != null ? teste.getAluno().getId() : null)
                 .alunoNome(teste.getAluno() != null ? teste.getAluno().getNome() : null)
+                .alunoPassaporte(teste.getAluno() != null ? teste.getAluno().getPassaporte() : null)
+                .alunoTelefone(teste.getAluno() != null ? teste.getAluno().getTelefone() : null)
                 .status(teste.getStatus())
                 .avaliadorId(teste.getAvaliador() != null ? teste.getAvaliador().getId() : null)
                 .avaliadorNome(teste.getAvaliador() != null ? teste.getAvaliador().getNome() : null)
                 .dataCriacao(teste.getDataCriacao())
                 .dataFinalizacao(teste.getDataFinalizacao())
-                .pagamento(PagamentoDTO.fromEntity(teste.getPagamento(), false))
+                .pagamento(teste.getPagamento() != null ? PagamentoDTO.fromEntity(teste.getPagamento(), incluirComprovante) : null)
                 .build();
     }
 }

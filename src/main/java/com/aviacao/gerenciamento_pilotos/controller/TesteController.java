@@ -23,25 +23,52 @@ public class TesteController {
 
     private final TesteService testeService;
 
+    @GetMapping
+    public ResponseEntity<List<TesteDTO>> listarTodos(
+            @RequestParam(defaultValue = "false") boolean incluirComprovante) {
+        List<Teste> testes = testeService.listarTodos();
+        List<TesteDTO> response = testes.stream()
+                .map(t -> TesteDTO.fromEntity(t, incluirComprovante))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/aluno/{alunoId}")
-    public ResponseEntity<List<TesteDTO>> listarPorAluno(@PathVariable Long alunoId) {
+    public ResponseEntity<List<TesteDTO>> listarPorAluno(
+            @PathVariable Long alunoId,
+            @RequestParam(defaultValue = "false") boolean incluirComprovante) {
         List<Teste> testes = testeService.listarPorAluno(alunoId);
         List<TesteDTO> response = testes.stream()
-                .map(TesteDTO::fromEntity)
+                .map(t -> TesteDTO.fromEntity(t, incluirComprovante))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/aluno/{alunoId}/atual")
-    public ResponseEntity<TesteDTO> buscarTesteAtual(@PathVariable Long alunoId) {
+    public ResponseEntity<TesteDTO> buscarTesteAtual(
+            @PathVariable Long alunoId,
+            @RequestParam(defaultValue = "false") boolean incluirComprovante) {
         Teste teste = testeService.buscarTesteAtual(alunoId);
-        return ResponseEntity.ok(TesteDTO.fromEntity(teste));
+        return ResponseEntity.ok(TesteDTO.fromEntity(teste, incluirComprovante));
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<TesteDTO>> listarPorStatus(
+            @PathVariable StatusTeste status,
+            @RequestParam(defaultValue = "false") boolean incluirComprovante) {
+        List<Teste> testes = testeService.listarPorStatus(status);
+        List<TesteDTO> response = testes.stream()
+                .map(t -> TesteDTO.fromEntity(t, incluirComprovante))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TesteDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<TesteDTO> buscarPorId(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean incluirComprovante) {
         Teste teste = testeService.buscarPorId(id);
-        return ResponseEntity.ok(TesteDTO.fromEntity(teste));
+        return ResponseEntity.ok(TesteDTO.fromEntity(teste, incluirComprovante));
     }
 
     @PostMapping

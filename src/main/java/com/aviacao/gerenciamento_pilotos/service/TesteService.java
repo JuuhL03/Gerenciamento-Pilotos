@@ -30,6 +30,11 @@ public class TesteService {
     }
 
     @Transactional(readOnly = true)
+    public List<Teste> listarTodos() {
+        return testeRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
     public Teste buscarPorId(Long id) {
         return testeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Teste não encontrado com ID: " + id));
