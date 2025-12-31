@@ -27,20 +27,33 @@ public interface AlunoRepository extends JpaRepository<Aluno, Long> {
 
     boolean existsByPassaporteAndIdNot(Integer passaporte, Long id);
 
-    @Query("SELECT DISTINCT a FROM Aluno a LEFT JOIN a.testes t " +
+    @Query("SELECT DISTINCT a FROM Aluno a " +
+            "LEFT JOIN FETCH a.testes t " +
             "WHERE a.ativo = true " +
-            "AND (LOWER(a.nome) LIKE LOWER(CONCAT('%', :busca, '%')) " +
-            "OR CAST(a.passaporte AS string) LIKE CONCAT('%', :busca, '%'))")
-    Page<Aluno> findByBuscaAndAtivoTrue(@Param("busca") String busca, Pageable pageable);
+            "AND (t.ativo = true OR t IS NULL)")
+    Page<Aluno> findAllWithTestes(Pageable pageable);
 
-    @Query("SELECT DISTINCT a FROM Aluno a JOIN a.testes t " +
-            "WHERE a.ativo = true AND t.ativo = true AND t.status = :status")
-    Page<Aluno> findByStatusAndAtivoTrue(@Param("status") StatusTeste status, Pageable pageable);
-
-    @Query("SELECT DISTINCT a FROM Aluno a LEFT JOIN a.testes t " +
+    @Query("SELECT DISTINCT a FROM Aluno a " +
+            "LEFT JOIN FETCH a.testes t " +
             "WHERE a.ativo = true " +
             "AND (LOWER(a.nome) LIKE LOWER(CONCAT('%', :busca, '%')) " +
             "OR CAST(a.passaporte AS string) LIKE CONCAT('%', :busca, '%')) " +
-            "AND t.ativo = true AND t.status = :status")
-    Page<Aluno> findByBuscaAndStatusAndAtivoTrue(@Param("busca") String busca, @Param("status") StatusTeste status, Pageable pageable);
+            "AND (t.ativo = true OR t IS NULL)")
+    Page<Aluno> findByBuscaWithTestes(@Param("busca") String busca, Pageable pageable);
+
+    @Query("SELECT DISTINCT a FROM Aluno a " +
+            "LEFT JOIN FETCH a.testes t " +
+            "WHERE a.ativo = true " +
+            "AND t.ativo = true " +
+            "AND t.status = :status")
+    Page<Aluno> findByStatusWithTestes(@Param("status") StatusTeste status, Pageable pageable);
+
+    @Query("SELECT DISTINCT a FROM Aluno a " +
+            "LEFT JOIN FETCH a.testes t " +
+            "WHERE a.ativo = true " +
+            "AND (LOWER(a.nome) LIKE LOWER(CONCAT('%', :busca, '%')) " +
+            "OR CAST(a.passaporte AS string) LIKE CONCAT('%', :busca, '%')) " +
+            "AND t.ativo = true " +
+            "AND t.status = :status")
+    Page<Aluno> findByBuscaAndStatusWithTestes(@Param("busca") String busca, @Param("status") StatusTeste status, Pageable pageable);
 }

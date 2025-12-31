@@ -1,7 +1,7 @@
 package com.aviacao.gerenciamento_pilotos.dto.response;
 
 import com.aviacao.gerenciamento_pilotos.domain.entity.Aluno;
-import com.aviacao.gerenciamento_pilotos.domain.enums.StatusTeste;
+import com.aviacao.gerenciamento_pilotos.domain.entity.Teste;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,12 +19,16 @@ public class AlunoResumoDTO {
     private Integer passaporte;
     private String telefone;
     private Boolean autorizado;
+    private TesteResumoDTO teste;
     private LocalDateTime dataCriacao;
+    private LocalDateTime dataUltimaAtualizacao;
 
     public static AlunoResumoDTO fromEntity(Aluno aluno) {
         if (aluno == null) {
             return null;
         }
+
+        Teste testeAtual = aluno.getTesteAtual();
 
         return AlunoResumoDTO.builder()
                 .id(aluno.getId())
@@ -32,7 +36,9 @@ public class AlunoResumoDTO {
                 .passaporte(aluno.getPassaporte())
                 .telefone(aluno.getTelefone())
                 .autorizado(aluno.getAutorizado())
+                .teste(testeAtual != null ? TesteResumoDTO.fromEntity(testeAtual) : null)
                 .dataCriacao(aluno.getDataCriacao())
+                .dataUltimaAtualizacao(aluno.getDataUltimaAtualizacao())
                 .build();
     }
 }

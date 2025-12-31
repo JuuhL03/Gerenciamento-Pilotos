@@ -35,13 +35,13 @@ public class AlunoService {
     @Transactional(readOnly = true)
     public Page<Aluno> listarComFiltros(String busca, StatusTeste status, Pageable pageable) {
         if (busca != null && status != null) {
-            return alunoRepository.findByBuscaAndStatusAndAtivoTrue(busca, status, pageable);
+            return alunoRepository.findByBuscaAndStatusWithTestes(busca, status, pageable);
         } else if (busca != null) {
-            return alunoRepository.findByBuscaAndAtivoTrue(busca, pageable);
+            return alunoRepository.findByBuscaWithTestes(busca, pageable);
         } else if (status != null) {
-            return alunoRepository.findByStatusAndAtivoTrue(status, pageable);
+            return alunoRepository.findByStatusWithTestes(status, pageable);
         }
-        return alunoRepository.findByAtivoTrue(pageable);
+        return alunoRepository.findAllWithTestes(pageable);
     }
 
     @Transactional(readOnly = true)
