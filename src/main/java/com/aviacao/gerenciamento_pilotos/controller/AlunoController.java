@@ -8,6 +8,7 @@ import com.aviacao.gerenciamento_pilotos.dto.request.AtribuirAvaliadorRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.AtualizacaoAlunoRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.CadastroAlunoRequest;
 import com.aviacao.gerenciamento_pilotos.dto.response.AlunoAeronaveDTO;
+import com.aviacao.gerenciamento_pilotos.dto.response.AlunoComAeronavesDTO;
 import com.aviacao.gerenciamento_pilotos.dto.response.AlunoDTO;
 import com.aviacao.gerenciamento_pilotos.dto.response.AlunoResumoDTO;
 import com.aviacao.gerenciamento_pilotos.service.AlunoAeronaveService;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/alunos")
@@ -177,5 +179,19 @@ public class AlunoController {
 
         alunoAeronaveService.desautorizarAluno(alunoId, aeronaveId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/com-aeronaves")
+    public ResponseEntity<List<AlunoComAeronavesDTO>> listarTodosComAeronaves() {
+        List<Aluno> alunos = alunoService.listarTodos();
+
+        List<AlunoComAeronavesDTO> response = alunos.stream()
+                .map(aluno -> {
+                    List<AlunoAeronaveDTO> aeronaves = alunoAeronaveService.listarAeronavesDoAluno(aluno.getId());
+                    return AlunoComAeronavesDTO.fromEntity(aluno, aeronaves);
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 }

@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AlunoService {
@@ -23,6 +25,11 @@ public class AlunoService {
     @Transactional(readOnly = true)
     public Page<Aluno> listarTodos(Pageable pageable) {
         return alunoRepository.findByAtivoTrue(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Aluno> listarTodos() {
+        return alunoRepository.findByAtivoTrue();
     }
 
     @Transactional(readOnly = true)

@@ -1,38 +1,29 @@
 package com.aviacao.gerenciamento_pilotos.dto.response;
 
 import com.aviacao.gerenciamento_pilotos.domain.entity.Aluno;
-import com.aviacao.gerenciamento_pilotos.domain.enums.StatusTeste;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AlunoResumoDTO {
-    private Long id;
+public class AlunoComAeronavesDTO {
     private String nome;
     private Integer passaporte;
     private String telefone;
-    private Boolean autorizado;
-    private LocalDateTime dataCriacao;
+    private List<AlunoAeronaveDTO> aeronaves;
 
-    public static AlunoResumoDTO fromEntity(Aluno aluno) {
-        if (aluno == null) {
-            return null;
-        }
-
-        return AlunoResumoDTO.builder()
-                .id(aluno.getId())
+    public static AlunoComAeronavesDTO fromEntity(Aluno aluno, List<AlunoAeronaveDTO> aeronaves) {
+        return AlunoComAeronavesDTO.builder()
                 .nome(aluno.getNome())
                 .passaporte(aluno.getPassaporte())
                 .telefone(aluno.getTelefone())
-                .autorizado(aluno.getAutorizado())
-                .dataCriacao(aluno.getDataCriacao())
+                .aeronaves(aeronaves)
                 .build();
     }
 }
