@@ -46,23 +46,23 @@ public class AlunoDTO {
             return null;
         }
 
-        AlunoDTOBuilder builder = AlunoDTO.builder()
+        List<TesteDTO> testesDTO = null;
+        if (incluirTestes && aluno.getTestes() != null) {
+            testesDTO = aluno.getTestes().stream()
+                    .filter(t -> t.getAtivo())
+                    .map(t -> TesteDTO.fromEntity(t, incluirComprovante))
+                    .collect(Collectors.toList());
+        }
+
+        return AlunoDTO.builder()
                 .id(aluno.getId())
                 .nome(aluno.getNome())
                 .passaporte(aluno.getPassaporte())
                 .telefone(aluno.getTelefone())
                 .autorizado(aluno.getAutorizado())
                 .dataCriacao(aluno.getDataCriacao())
-                .dataUltimaAtualizacao(aluno.getDataUltimaAtualizacao());
-
-        if (incluirTestes && aluno.getTestes() != null) {
-            List<TesteDTO> testesDTO = aluno.getTestes().stream()
-                    .filter(t -> t.getAtivo())
-                    .map(t -> TesteDTO.fromEntity(t, incluirComprovante))
-                    .collect(Collectors.toList());
-            builder.testes(testesDTO);
-        }
-
-        return builder.build();
+                .dataUltimaAtualizacao(aluno.getDataUltimaAtualizacao())
+                .testes(testesDTO)
+                .build();
     }
 }

@@ -51,9 +51,20 @@ public class AlunoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AlunoDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<AlunoDTO> buscarPorId(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean incluirAeronaves) {
+
         Aluno aluno = alunoService.buscarPorId(id);
-        return ResponseEntity.ok(AlunoDTO.fromEntity(aluno));
+
+        AlunoDTO alunoDTO = AlunoDTO.fromEntity(aluno);
+
+        if (incluirAeronaves) {
+            List<AlunoAeronaveDTO> aeronaves = alunoAeronaveService.listarAeronavesDoAluno(id);
+            alunoDTO.setAeronaves(aeronaves);
+        }
+
+        return ResponseEntity.ok(alunoDTO);
     }
 
     @GetMapping("/passaporte/{passaporte}")
