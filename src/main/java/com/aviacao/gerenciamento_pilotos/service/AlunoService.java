@@ -24,7 +24,7 @@ public class AlunoService {
 
     @Transactional(readOnly = true)
     public Page<Aluno> listarTodos(Pageable pageable) {
-        return alunoRepository.findByAtivoTrue(pageable);
+        return alunoRepository.findAllWithTestes(pageable);
     }
 
     @Transactional(readOnly = true)
