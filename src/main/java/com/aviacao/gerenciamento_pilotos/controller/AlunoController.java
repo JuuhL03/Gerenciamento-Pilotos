@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,17 @@ public class AlunoController {
             alunos = alunoService.listarTodos(pageable);
         }
 
-        Page<AlunoResumoDTO> response = alunos.map(AlunoResumoDTO::fromEntity);
+        Page<AlunoResumoDTO> response = alunos.map(aluno -> {
+            Teste testeAtual = aluno.getTestes() != null && !aluno.getTestes().isEmpty()
+                    ? aluno.getTestes().stream()
+                    .filter(t -> t.getAtivo())
+                    .max(Comparator.comparing(Teste::getId))
+                    .orElse(null)
+                    : null;
+
+            return AlunoResumoDTO.fromEntity(aluno, testeAtual);
+        });
+
         return ResponseEntity.ok(response);
     }
 

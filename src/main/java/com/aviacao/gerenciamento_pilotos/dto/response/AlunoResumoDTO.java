@@ -23,12 +23,10 @@ public class AlunoResumoDTO {
     private LocalDateTime dataCriacao;
     private LocalDateTime dataUltimaAtualizacao;
 
-    public static AlunoResumoDTO fromEntity(Aluno aluno) {
+    public static AlunoResumoDTO fromEntity(Aluno aluno, Teste testeAtual) {
         if (aluno == null) {
             return null;
         }
-
-        Teste testeAtual = aluno.getTesteAtual();
 
         return AlunoResumoDTO.builder()
                 .id(aluno.getId())
