@@ -32,6 +32,10 @@ public class TesteDTO {
     }
 
     public static TesteDTO fromEntity(Teste teste, boolean incluirComprovante) {
+        if (teste == null) {
+            return null;
+        }
+
         return TesteDTO.builder()
                 .id(teste.getId())
                 .alunoId(teste.getAluno() != null ? teste.getAluno().getId() : null)

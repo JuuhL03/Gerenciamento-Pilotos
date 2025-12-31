@@ -56,4 +56,11 @@ public interface AlunoRepository extends JpaRepository<Aluno, Long> {
             "AND t.ativo = true " +
             "AND t.status = :status")
     Page<Aluno> findByBuscaAndStatusWithTestes(@Param("busca") String busca, @Param("status") StatusTeste status, Pageable pageable);
+
+    @Query("SELECT DISTINCT a FROM Aluno a " +
+            "LEFT JOIN FETCH a.testes t " +
+            "LEFT JOIN FETCH t.pagamento " +
+            "LEFT JOIN FETCH t.avaliador " +
+            "WHERE a.id = :id AND a.ativo = true")
+    Optional<Aluno> findByIdWithTestes(@Param("id") Long id);
 }

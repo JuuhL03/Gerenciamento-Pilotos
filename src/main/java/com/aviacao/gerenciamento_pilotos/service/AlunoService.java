@@ -102,6 +102,12 @@ public class AlunoService {
         return alunoRepository.save(aluno);
     }
 
+    @Transactional(readOnly = true)
+    public Aluno buscarPorIdComTestes(Long id) {
+        return alunoRepository.findByIdWithTestes(id)
+                .orElseThrow(() -> new NotFoundException("Aluno não encontrado com ID: " + id));
+    }
+
     @Transactional
     public void deletar(Long id) {
         Aluno aluno = buscarPorId(id);
