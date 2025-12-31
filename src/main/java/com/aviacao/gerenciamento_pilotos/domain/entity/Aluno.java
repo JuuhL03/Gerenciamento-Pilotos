@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Entity
@@ -45,4 +46,14 @@ public class Aluno {
     @UpdateTimestamp
     @Column(name = "data_ultima_atualizacao")
     private LocalDateTime dataUltimaAtualizacao;
+
+    public Teste getTesteAtual() {
+        if (testes == null || testes.isEmpty()) {
+            return null;
+        }
+        return testes.stream()
+                .filter(t -> t.getAtivo())
+                .max(Comparator.comparing(Teste::getId))
+                .orElse(null);
+    }
 }
