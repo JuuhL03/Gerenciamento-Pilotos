@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AlunoComAeronavesDTO {
+    private Long id;
     private String nome;
     private Integer passaporte;
     private String telefone;
@@ -20,6 +21,7 @@ public class AlunoComAeronavesDTO {
 
     public static AlunoComAeronavesDTO fromEntity(Aluno aluno, List<AlunoAeronaveDTO> aeronaves) {
         return AlunoComAeronavesDTO.builder()
+                .id(aluno.getId())
                 .nome(aluno.getNome())
                 .passaporte(aluno.getPassaporte())
                 .telefone(aluno.getTelefone())
