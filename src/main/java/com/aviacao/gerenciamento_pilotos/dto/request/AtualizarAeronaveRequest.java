@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class AtualizarAeronaveRequest {
+    private Long id;
     private String nome;
     private Boolean ativa;
 }

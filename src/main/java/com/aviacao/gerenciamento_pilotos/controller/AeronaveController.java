@@ -5,12 +5,15 @@ import com.aviacao.gerenciamento_pilotos.dto.request.AtualizarAeronaveRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.CadastrarAeronaveRequest;
 import com.aviacao.gerenciamento_pilotos.dto.response.AeronaveDTO;
 import com.aviacao.gerenciamento_pilotos.service.AeronaveService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 public class AeronaveController {
 
     private final AeronaveService aeronaveService;
+    private final ObjectMapper objectMapper;
 
     @GetMapping
     public ResponseEntity<List<AeronaveDTO>> listarTodas() {
@@ -46,18 +50,47 @@ public class AeronaveController {
     }
 
     @PostMapping
-    public ResponseEntity<AeronaveDTO> cadastrar(@Valid @RequestBody CadastrarAeronaveRequest request) {
-        Aeronave aeronave = aeronaveService.cadastrar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(AeronaveDTO.fromEntity(aeronave));
+    public ResponseEntity<List<AeronaveDTO>> cadastrar(@RequestBody JsonNode body) {
+        List<CadastrarAeronaveRequest> requests = new ArrayList<>();
+
+        if (body.isArray()) {
+            for (JsonNode node : body) {
+                CadastrarAeronaveRequest request = objectMapper.convertValue(node, CadastrarAeronaveRequest.class);
+                requests.add(request);
+            }
+        } else {
+            CadastrarAeronaveRequest request = objectMapper.convertValue(body, CadastrarAeronaveRequest.class);
+            requests.add(request);
+        }
+
+        List<Aeronave> aeronaves = aeronaveService.cadastrarEmLote(requests);
+        List<AeronaveDTO> response = aeronaves.stream()
+                .map(AeronaveDTO::fromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<AeronaveDTO> atualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody AtualizarAeronaveRequest request) {
+    @PutMapping
+    public ResponseEntity<List<AeronaveDTO>> atualizar(@RequestBody JsonNode body) {
+        List<AtualizarAeronaveRequest> requests = new ArrayList<>();
 
-        Aeronave aeronave = aeronaveService.atualizar(id, request);
-        return ResponseEntity.ok(AeronaveDTO.fromEntity(aeronave));
+        if (body.isArray()) {
+            for (JsonNode node : body) {
+                AtualizarAeronaveRequest request = objectMapper.convertValue(node, AtualizarAeronaveRequest.class);
+                requests.add(request);
+            }
+        } else {
+            AtualizarAeronaveRequest request = objectMapper.convertValue(body, AtualizarAeronaveRequest.class);
+            requests.add(request);
+        }
+
+        List<Aeronave> aeronaves = aeronaveService.atualizarEmLote(requests);
+        List<AeronaveDTO> response = aeronaves.stream()
+                .map(AeronaveDTO::fromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
