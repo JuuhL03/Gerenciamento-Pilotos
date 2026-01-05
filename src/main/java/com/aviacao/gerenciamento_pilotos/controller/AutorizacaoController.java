@@ -28,6 +28,8 @@ public class AutorizacaoController {
 
         Page<Autorizacao> autorizacoes;
 
+        // só pra forçar o usuari oadmin ser criado dnv
+
         if (Boolean.TRUE.equals(apenasAtivas)) {
             autorizacoes = autorizacaoService.listarAtivas(pageable);
         } else {
