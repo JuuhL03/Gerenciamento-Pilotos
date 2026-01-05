@@ -106,6 +106,11 @@ public class AlunoService {
     @Transactional
     public void deletar(Long id) {
         Aluno aluno = buscarPorId(id);
+
+        if (aluno.getTestes() != null && !aluno.getTestes().isEmpty()) {
+            aluno.getTestes().forEach(teste -> teste.setAtivo(false));
+        }
+
         aluno.setAtivo(false);
         alunoRepository.save(aluno);
     }
