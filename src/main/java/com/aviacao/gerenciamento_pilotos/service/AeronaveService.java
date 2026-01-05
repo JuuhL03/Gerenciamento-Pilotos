@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,37 +37,6 @@ public class AeronaveService {
     }
 
     @Transactional
-    public Aeronave cadastrar(CadastrarAeronaveRequest request) {
-        if (aeronaveRepository.existsByNome(request.getNome())) {
-            throw new BusinessException("Já existe uma aeronave com o nome: " + request.getNome());
-        }
-
-        Aeronave aeronave = new Aeronave();
-        aeronave.setNome(request.getNome());
-        aeronave.setAtiva(true);
-
-        return aeronaveRepository.save(aeronave);
-    }
-
-    @Transactional
-    public Aeronave atualizar(Long id, AtualizarAeronaveRequest request) {
-        Aeronave aeronave = buscarPorId(id);
-
-        if (request.getNome() != null) {
-            if (aeronaveRepository.existsByNomeAndIdNot(request.getNome(), id)) {
-                throw new BusinessException("Já existe uma aeronave com o nome: " + request.getNome());
-            }
-            aeronave.setNome(request.getNome());
-        }
-
-        if (request.getAtiva() != null) {
-            aeronave.setAtiva(request.getAtiva());
-        }
-
-        return aeronaveRepository.save(aeronave);
-    }
-
-    @Transactional
     public void deletar(Long id) {
         Aeronave aeronave = buscarPorId(id);
         aeronave.setAtiva(false);
@@ -88,49 +58,45 @@ public class AeronaveService {
     }
 
     @Transactional
-    public List<Aeronave> cadastrarEmLote(List<CadastrarAeronaveRequest> requests) {
+    public List<Aeronave> salvarEmLote(List<CadastrarAeronaveRequest> requests) {
         List<Aeronave> aeronaves = new ArrayList<>();
 
         for (CadastrarAeronaveRequest request : requests) {
-            if (aeronaveRepository.existsByNome(request.getNome())) {
-                throw new BusinessException("Já existe uma aeronave com o nome: " + request.getNome());
-            }
+            Aeronave aeronave;
 
-            Aeronave aeronave = new Aeronave();
-            aeronave.setNome(request.getNome());
-            aeronave.setAtiva(true);
+            if (request.getId() != null) {
+                Optional<Aeronave> aeronaveExistente = aeronaveRepository.findById(request.getId());
+
+                if (aeronaveExistente.isPresent()) {
+                    aeronave = aeronaveExistente.get();
+
+                    if (!aeronave.getNome().equals(request.getNome())) {
+                        if (aeronaveRepository.existsByNomeAndIdNot(request.getNome(), request.getId())) {
+                            throw new BusinessException("Já existe uma aeronave com o nome: " + request.getNome());
+                        }
+                        aeronave.setNome(request.getNome());
+                    }
+                } else {
+                    if (aeronaveRepository.existsByNome(request.getNome())) {
+                        throw new BusinessException("Já existe uma aeronave com o nome: " + request.getNome());
+                    }
+
+                    aeronave = new Aeronave();
+                    aeronave.setNome(request.getNome());
+                    aeronave.setAtiva(true);
+                }
+            } else {
+                if (aeronaveRepository.existsByNome(request.getNome())) {
+                    throw new BusinessException("Já existe uma aeronave com o nome: " + request.getNome());
+                }
+
+                aeronave = new Aeronave();
+                aeronave.setNome(request.getNome());
+                aeronave.setAtiva(true);
+            }
 
             Aeronave aeronaveSalva = aeronaveRepository.save(aeronave);
             aeronaves.add(aeronaveSalva);
-        }
-
-        return aeronaves;
-    }
-
-    @Transactional
-    public List<Aeronave> atualizarEmLote(List<AtualizarAeronaveRequest> requests) {
-        List<Aeronave> aeronaves = new ArrayList<>();
-
-        for (AtualizarAeronaveRequest request : requests) {
-            if (request.getId() == null) {
-                throw new BusinessException("ID é obrigatório para atualização");
-            }
-
-            Aeronave aeronave = buscarPorId(request.getId());
-
-            if (request.getNome() != null) {
-                if (aeronaveRepository.existsByNomeAndIdNot(request.getNome(), request.getId())) {
-                    throw new BusinessException("Já existe uma aeronave com o nome: " + request.getNome());
-                }
-                aeronave.setNome(request.getNome());
-            }
-
-            if (request.getAtiva() != null) {
-                aeronave.setAtiva(request.getAtiva());
-            }
-
-            Aeronave aeronaveAtualizada = aeronaveRepository.save(aeronave);
-            aeronaves.add(aeronaveAtualizada);
         }
 
         return aeronaves;

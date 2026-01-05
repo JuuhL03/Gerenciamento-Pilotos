@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class CadastrarAeronaveRequest {
+    private Long id;
 
     @NotBlank(message = "Nome é obrigatório")
     private String nome;

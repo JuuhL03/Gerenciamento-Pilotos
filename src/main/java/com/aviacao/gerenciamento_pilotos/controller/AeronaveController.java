@@ -1,13 +1,11 @@
 package com.aviacao.gerenciamento_pilotos.controller;
 
 import com.aviacao.gerenciamento_pilotos.domain.entity.Aeronave;
-import com.aviacao.gerenciamento_pilotos.dto.request.AtualizarAeronaveRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.CadastrarAeronaveRequest;
 import com.aviacao.gerenciamento_pilotos.dto.response.AeronaveDTO;
 import com.aviacao.gerenciamento_pilotos.service.AeronaveService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +48,7 @@ public class AeronaveController {
     }
 
     @PostMapping
-    public ResponseEntity<List<AeronaveDTO>> cadastrar(@RequestBody JsonNode body) {
+    public ResponseEntity<List<AeronaveDTO>> salvar(@RequestBody JsonNode body) {
         List<CadastrarAeronaveRequest> requests = new ArrayList<>();
 
         if (body.isArray()) {
@@ -63,34 +61,12 @@ public class AeronaveController {
             requests.add(request);
         }
 
-        List<Aeronave> aeronaves = aeronaveService.cadastrarEmLote(requests);
+        List<Aeronave> aeronaves = aeronaveService.salvarEmLote(requests);
         List<AeronaveDTO> response = aeronaves.stream()
                 .map(AeronaveDTO::fromEntity)
                 .collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @PutMapping
-    public ResponseEntity<List<AeronaveDTO>> atualizar(@RequestBody JsonNode body) {
-        List<AtualizarAeronaveRequest> requests = new ArrayList<>();
-
-        if (body.isArray()) {
-            for (JsonNode node : body) {
-                AtualizarAeronaveRequest request = objectMapper.convertValue(node, AtualizarAeronaveRequest.class);
-                requests.add(request);
-            }
-        } else {
-            AtualizarAeronaveRequest request = objectMapper.convertValue(body, AtualizarAeronaveRequest.class);
-            requests.add(request);
-        }
-
-        List<Aeronave> aeronaves = aeronaveService.atualizarEmLote(requests);
-        List<AeronaveDTO> response = aeronaves.stream()
-                .map(AeronaveDTO::fromEntity)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
