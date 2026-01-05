@@ -1,7 +1,6 @@
 package com.aviacao.gerenciamento_pilotos.service;
 
 import com.aviacao.gerenciamento_pilotos.domain.entity.Aeronave;
-import com.aviacao.gerenciamento_pilotos.dto.request.AtualizarAeronaveRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.CadastrarAeronaveRequest;
 import com.aviacao.gerenciamento_pilotos.exception.BusinessException;
 import com.aviacao.gerenciamento_pilotos.exception.NotFoundException;
@@ -22,7 +21,7 @@ public class AeronaveService {
 
     @Transactional(readOnly = true)
     public List<Aeronave> listarTodos() {
-        return aeronaveRepository.findAll();
+        return aeronaveRepository.findByAtivaTrue();
     }
 
     @Transactional(readOnly = true)
@@ -32,7 +31,7 @@ public class AeronaveService {
 
     @Transactional(readOnly = true)
     public Aeronave buscarPorId(Long id) {
-        return aeronaveRepository.findById(id)
+        return aeronaveRepository.findByIdAndAtivaTrue(id)
                 .orElseThrow(() -> new NotFoundException("Aeronave não encontrada com ID: " + id));
     }
 
@@ -45,7 +44,8 @@ public class AeronaveService {
 
     @Transactional
     public Aeronave ativar(Long id) {
-        Aeronave aeronave = buscarPorId(id);
+        Aeronave aeronave = aeronaveRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Aeronave não encontrada com ID: " + id));
         aeronave.setAtiva(true);
         return aeronaveRepository.save(aeronave);
     }
@@ -65,19 +65,19 @@ public class AeronaveService {
             Aeronave aeronave;
 
             if (request.getId() != null) {
-                Optional<Aeronave> aeronaveExistente = aeronaveRepository.findById(request.getId());
+                Optional<Aeronave> aeronaveExistente = aeronaveRepository.findByIdAndAtivaTrue(request.getId());
 
                 if (aeronaveExistente.isPresent()) {
                     aeronave = aeronaveExistente.get();
 
                     if (!aeronave.getNome().equals(request.getNome())) {
-                        if (aeronaveRepository.existsByNomeAndIdNot(request.getNome(), request.getId())) {
+                        if (aeronaveRepository.existsByNomeAndIdNotAndAtivaTrue(request.getNome(), request.getId())) {
                             throw new BusinessException("Já existe uma aeronave com o nome: " + request.getNome());
                         }
                         aeronave.setNome(request.getNome());
                     }
                 } else {
-                    if (aeronaveRepository.existsByNome(request.getNome())) {
+                    if (aeronaveRepository.existsByNomeAndAtivaTrue(request.getNome())) {
                         throw new BusinessException("Já existe uma aeronave com o nome: " + request.getNome());
                     }
 
@@ -86,7 +86,7 @@ public class AeronaveService {
                     aeronave.setAtiva(true);
                 }
             } else {
-                if (aeronaveRepository.existsByNome(request.getNome())) {
+                if (aeronaveRepository.existsByNomeAndAtivaTrue(request.getNome())) {
                     throw new BusinessException("Já existe uma aeronave com o nome: " + request.getNome());
                 }
 

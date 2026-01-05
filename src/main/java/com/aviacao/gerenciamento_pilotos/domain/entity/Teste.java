@@ -4,12 +4,14 @@ import com.aviacao.gerenciamento_pilotos.domain.enums.StatusTeste;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "teste")
 @Data
+@SQLRestriction("ativo = true")
 public class Teste {
 
     @Id

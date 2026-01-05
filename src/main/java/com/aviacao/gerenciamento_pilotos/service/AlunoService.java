@@ -28,11 +28,6 @@ public class AlunoService {
     }
 
     @Transactional(readOnly = true)
-    public List<Aluno> listarTodos() {
-        return alunoRepository.findByAtivoTrue();
-    }
-
-    @Transactional(readOnly = true)
     public Page<Aluno> listarComFiltros(String busca, StatusTeste status, Pageable pageable) {
         if (busca != null && status != null) {
             return alunoRepository.findByBuscaAndStatusWithTestes(busca, status, pageable);
@@ -46,13 +41,13 @@ public class AlunoService {
 
     @Transactional(readOnly = true)
     public Aluno buscarPorId(Long id) {
-        return alunoRepository.findByIdAndAtivoTrue(id)
+        return alunoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Aluno não encontrado com ID: " + id));
     }
 
     @Transactional(readOnly = true)
     public Aluno buscarPorPassaporte(Integer passaporte) {
-        return alunoRepository.findByPassaporteAndAtivoTrue(passaporte)
+        return alunoRepository.findByPassaporte(passaporte)
                 .orElseThrow(() -> new NotFoundException("Aluno não encontrado com passaporte: " + passaporte));
     }
 

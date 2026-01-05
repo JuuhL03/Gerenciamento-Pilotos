@@ -14,7 +14,7 @@ public interface AeronaveRepository extends JpaRepository<Aeronave, Long> {
 
     List<Aeronave> findByAtivaTrue();
 
-    boolean existsByNome(String nome);
+    boolean existsByNomeAndAtivaTrue(String nome);
 
-    boolean existsByNomeAndIdNot(String nome, Long id);
+    boolean existsByNomeAndIdNotAndAtivaTrue(String nome, Long id);
 }

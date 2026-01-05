@@ -26,23 +26,23 @@ public class TesteService {
 
     @Transactional(readOnly = true)
     public Page<Teste> listarTodos(Pageable pageable) {
-        return testeRepository.findByAtivoTrue(pageable);
+        return testeRepository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)
     public Teste buscarPorId(Long id) {
-        return testeRepository.findByIdAndAtivoTrue(id)
+        return testeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Teste não encontrado com ID: " + id));
     }
 
     @Transactional(readOnly = true)
     public List<Teste> listarPorAluno(Long alunoId) {
-        return testeRepository.findByAlunoIdAndAtivoTrueOrderByIdDesc(alunoId);
+        return testeRepository.findByAlunoIdOrderByIdDesc(alunoId);
     }
 
     @Transactional(readOnly = true)
     public Teste buscarTesteAtual(Long alunoId) {
-        List<Teste> testes = testeRepository.findByAlunoIdAndAtivoTrueOrderByIdDesc(alunoId);
+        List<Teste> testes = testeRepository.findByAlunoIdOrderByIdDesc(alunoId);
         if (testes.isEmpty()) {
             throw new NotFoundException("Nenhum teste encontrado para o aluno ID: " + alunoId);
         }
@@ -51,7 +51,7 @@ public class TesteService {
 
     @Transactional(readOnly = true)
     public List<Teste> listarPorStatus(StatusTeste status) {
-        return testeRepository.findByStatusAndAtivoTrue(status);
+        return testeRepository.findByStatus(status);
     }
 
     @Transactional

@@ -13,8 +13,4 @@ public interface AlunoAeronaveRepository extends JpaRepository<AlunoAeronave, Lo
     Optional<AlunoAeronave> findByAlunoIdAndAeronaveId(Long alunoId, Long aeronaveId);
 
     List<AlunoAeronave> findByAlunoId(Long alunoId);
-
-    List<AlunoAeronave> findByAeronaveId(Long aeronaveId);
-
-    boolean existsByAlunoIdAndAeronaveId(Long alunoId, Long aeronaveId);
 }

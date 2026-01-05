@@ -21,7 +21,7 @@ public class LocalPousoDTO {
     private String fotoNome;
     private String fotoTipo;
     private Long fotoTamanho;
-    private String fotoBase64;  // Foto em base64 (opcional, só quando solicitar)
+    private String fotoBase64;
     private LocalDateTime dataCadastro;
 
     public static LocalPousoDTO fromEntity(LocalPouso localPouso, boolean incluirFoto) {

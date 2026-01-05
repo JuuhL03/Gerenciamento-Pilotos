@@ -27,8 +27,8 @@ public class PagamentoDTO {
 
         PagamentoDTO dto = new PagamentoDTO();
         dto.setId(pagamento.getId());
-        dto.setAlunoId(pagamento.getAluno() != null ? pagamento.getAluno().getId() : null); // ← ADICIONE!
-        dto.setTesteId(pagamento.getTeste() != null ? pagamento.getTeste().getId() : null); // ← ADICIONE!
+        dto.setAlunoId(pagamento.getAluno() != null ? pagamento.getAluno().getId() : null);
+        dto.setTesteId(pagamento.getTeste() != null ? pagamento.getTeste().getId() : null);
         dto.setPago(pagamento.getPago());
         dto.setValor(pagamento.getValor());
         dto.setComprovanteNome(pagamento.getComprovanteNome());

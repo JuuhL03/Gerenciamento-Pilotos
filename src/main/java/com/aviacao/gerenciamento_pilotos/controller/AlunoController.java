@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/alunos")
@@ -52,7 +51,7 @@ public class AlunoController {
         Page<AlunoResumoDTO> response = alunos.map(aluno -> {
             Teste testeAtual = aluno.getTestes() != null && !aluno.getTestes().isEmpty()
                     ? aluno.getTestes().stream()
-                    .filter(t -> t.getAtivo())
+                    .filter(Teste::getAtivo)
                     .max(Comparator.comparing(Teste::getId))
                     .orElse(null)
                     : null;
@@ -112,7 +111,6 @@ public class AlunoController {
             @PathVariable Long id,
             @Valid @RequestBody AtribuirAvaliadorRequest request) {
 
-        Teste teste = testeService.atribuirAvaliador(id, request.getAvaliadorId());
         Aluno aluno = alunoService.buscarPorId(id);
         return ResponseEntity.ok(AlunoDTO.fromEntity(aluno));
     }
@@ -182,15 +180,13 @@ public class AlunoController {
     }
 
     @GetMapping("/com-aeronaves")
-    public ResponseEntity<List<AlunoComAeronavesDTO>> listarTodosComAeronaves() {
-        List<Aluno> alunos = alunoService.listarTodos();
+    public ResponseEntity<Page<AlunoComAeronavesDTO>> listarTodosComAeronaves(Pageable pageable) {
+        Page<Aluno> alunos = alunoService.listarTodos(pageable);
 
-        List<AlunoComAeronavesDTO> response = alunos.stream()
-                .map(aluno -> {
-                    List<AlunoAeronaveDTO> aeronaves = alunoAeronaveService.listarAeronavesDoAluno(aluno.getId());
-                    return AlunoComAeronavesDTO.fromEntity(aluno, aeronaves);
-                })
-                .collect(Collectors.toList());
+        Page<AlunoComAeronavesDTO> response = alunos.map(aluno -> {
+            List<AlunoAeronaveDTO> aeronaves = alunoAeronaveService.listarAeronavesDoAluno(aluno.getId());
+            return AlunoComAeronavesDTO.fromEntity(aluno, aeronaves);
+        });
 
         return ResponseEntity.ok(response);
     }

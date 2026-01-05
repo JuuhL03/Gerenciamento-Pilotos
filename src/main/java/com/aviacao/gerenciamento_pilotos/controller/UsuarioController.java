@@ -26,15 +26,12 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<Page<UsuarioDTO>> listar(
             @RequestParam(required = false) Cargo cargo,
-            @RequestParam(required = false) Boolean apenasAtivos,
             Pageable pageable) {
 
         Page<Usuario> usuarios;
 
         if (cargo != null) {
             usuarios = usuarioService.listarPorCargo(cargo, pageable);
-        } else if (Boolean.TRUE.equals(apenasAtivos)) {
-            usuarios = usuarioService.listarAtivos(pageable);
         } else {
             usuarios = usuarioService.listarTodos(pageable);
         }

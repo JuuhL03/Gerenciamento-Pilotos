@@ -15,13 +15,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>, JpaSpec
 
     Optional<Usuario> findByLogin(String login);
 
-    Optional<Usuario> findByLoginAndAtivoTrue(String login);
-
     boolean existsByLogin(String login);
 
     boolean existsByPassaporte(String passaporte);
 
     Page<Usuario> findByCargo(Cargo cargo, Pageable pageable);
-
-    Page<Usuario> findByAtivoTrue(Pageable pageable);
 }

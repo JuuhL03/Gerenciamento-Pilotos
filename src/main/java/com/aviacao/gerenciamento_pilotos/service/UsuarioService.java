@@ -25,11 +25,6 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Usuario> listarAtivos(Pageable pageable) {
-        return usuarioRepository.findByAtivoTrue(pageable);
-    }
-
-    @Transactional(readOnly = true)
     public Page<Usuario> listarPorCargo(Cargo cargo, Pageable pageable) {
         return usuarioRepository.findByCargo(cargo, pageable);
     }
@@ -38,12 +33,6 @@ public class UsuarioService {
     public Usuario buscarPorId(Long id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado com ID: " + id));
-    }
-
-    @Transactional(readOnly = true)
-    public Usuario buscarPorLogin(String login) {
-        return usuarioRepository.findByLogin(login)
-                .orElseThrow(() -> new NotFoundException("Usuário não encontrado com login: " + login));
     }
 
     @Transactional
@@ -103,7 +92,8 @@ public class UsuarioService {
 
     @Transactional
     public Usuario reativar(Long id) {
-        Usuario usuario = buscarPorId(id);
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado com ID: " + id));
         usuario.setAtivo(true);
         return usuarioRepository.save(usuario);
     }
