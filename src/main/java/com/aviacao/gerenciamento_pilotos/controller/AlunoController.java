@@ -7,11 +7,9 @@ import com.aviacao.gerenciamento_pilotos.dto.request.AlterarStatusTesteRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.AtribuirAvaliadorRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.AtualizacaoAlunoRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.CadastroAlunoRequest;
-import com.aviacao.gerenciamento_pilotos.dto.response.AlunoAeronaveDTO;
-import com.aviacao.gerenciamento_pilotos.dto.response.AlunoComAeronavesDTO;
-import com.aviacao.gerenciamento_pilotos.dto.response.AlunoDTO;
-import com.aviacao.gerenciamento_pilotos.dto.response.AlunoResumoDTO;
+import com.aviacao.gerenciamento_pilotos.dto.response.*;
 import com.aviacao.gerenciamento_pilotos.service.AlunoAeronaveService;
+import com.aviacao.gerenciamento_pilotos.service.AlunoLocalPousoService;
 import com.aviacao.gerenciamento_pilotos.service.AlunoService;
 import com.aviacao.gerenciamento_pilotos.service.TesteService;
 import jakarta.validation.Valid;
@@ -33,6 +31,7 @@ public class AlunoController {
     private final AlunoService alunoService;
     private final TesteService testeService;
     private final AlunoAeronaveService alunoAeronaveService;
+    private final AlunoLocalPousoService alunoLocalPousoService;
 
     @GetMapping
     public ResponseEntity<Page<AlunoResumoDTO>> listar(
@@ -189,5 +188,29 @@ public class AlunoController {
         });
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{alunoId}/locais-pouso")
+    public ResponseEntity<List<AlunoLocalPousoDTO>> listarLocaisPousoDoAluno(@PathVariable Long alunoId) {
+        List<AlunoLocalPousoDTO> locais = alunoLocalPousoService.listarLocaisPousoDoAluno(alunoId);
+        return ResponseEntity.ok(locais);
+    }
+
+    @PostMapping("/{alunoId}/locais-pouso/{localPousoId}/autorizar")
+    public ResponseEntity<Void> autorizarLocalPouso(
+            @PathVariable Long alunoId,
+            @PathVariable Long localPousoId) {
+
+        alunoLocalPousoService.autorizarAluno(alunoId, localPousoId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{alunoId}/locais-pouso/{localPousoId}/desautorizar")
+    public ResponseEntity<Void> desautorizarLocalPouso(
+            @PathVariable Long alunoId,
+            @PathVariable Long localPousoId) {
+
+        alunoLocalPousoService.desautorizarAluno(alunoId, localPousoId);
+        return ResponseEntity.ok().build();
     }
 }

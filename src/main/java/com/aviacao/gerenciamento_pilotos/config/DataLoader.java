@@ -23,25 +23,36 @@ public class DataLoader implements CommandLineRunner {
     private void criarUsuarioAdminPadrao() {
         String loginAdmin = "admin";
 
-        if (!usuarioRepository.existsByLogin(loginAdmin)) {
-            Usuario admin = new Usuario();
-            admin.setPassaporte("001");
-            admin.setNome("Admin");
-            admin.setTelefone("000-000");
-            admin.setLogin(loginAdmin);
-            admin.setSenhaHash(passwordEncoder.encode("Gam@CPX"));
-            admin.setCargo(Cargo.ADMIN);
-            admin.setAtivo(true);
+        try {
+            // ✅ USA O MÉTODO SEM FILTRO!
+            Usuario adminExistente = usuarioRepository.findByLoginIgnorandoAtivo(loginAdmin).orElse(null);
 
-            usuarioRepository.save(admin);
+            if (adminExistente != null) {
+                // Admin existe
+                if (adminExistente.getAtivo()) {
+                    System.out.println("✅ Usuário ADMIN já existe e está ativo.");
+                }
+            } else {
+                // Admin não existe - cria novo
+                Usuario admin = new Usuario();
+                admin.setPassaporte("001");
+                admin.setNome("Admin");
+                admin.setTelefone("000-000");
+                admin.setLogin(loginAdmin);
+                admin.setSenhaHash(passwordEncoder.encode("Gam@CPX"));
+                admin.setCargo(Cargo.ADMIN);
+                admin.setAtivo(true);
 
-            System.out.println("✅ Usuário ADMIN criado com sucesso!");
-            System.out.println("   Passaporte: 001");
-            System.out.println("   Nome: Admin");
-            System.out.println("   Login: admin");
-            System.out.println("   Senha: Gam@CPX");
-        } else {
-            System.out.println("ℹ️ Usuário ADMIN já existe no banco de dados.");
+                usuarioRepository.save(admin);
+
+                System.out.println("✅ Usuário ADMIN criado com sucesso!");
+                System.out.println("   Passaporte: 001");
+                System.out.println("   Nome: Admin");
+                System.out.println("   Login: admin");
+                System.out.println("   Senha: Gam@CPX");
+            }
+        } catch (Exception e) {
+            System.err.println("⚠️ Erro ao criar/verificar usuário admin: " + e.getMessage());
         }
     }
 }

@@ -15,34 +15,26 @@ import java.time.LocalDateTime;
 public class LocalPousoDTO {
 
     private Long id;
-    private Long alunoId;
-    private String alunoNome;
     private String nome;
-    private String fotoNome;
-    private String fotoTipo;
-    private Long fotoTamanho;
-    private String fotoBase64;
-    private LocalDateTime dataCadastro;
-
-    public static LocalPousoDTO fromEntity(LocalPouso localPouso, boolean incluirFoto) {
-        LocalPousoDTOBuilder builder = LocalPousoDTO.builder()
-                .id(localPouso.getId())
-                .alunoId(localPouso.getAluno().getId())
-                .alunoNome(localPouso.getAluno().getNome())
-                .nome(localPouso.getNome())
-                .fotoNome(localPouso.getFotoNome())
-                .fotoTipo(localPouso.getFotoTipo())
-                .fotoTamanho(localPouso.getFotoTamanho())
-                .dataCadastro(localPouso.getDataCadastro());
-
-        if (incluirFoto && localPouso.getFotoDados() != null) {
-            builder.fotoBase64(java.util.Base64.getEncoder().encodeToString(localPouso.getFotoDados()));
-        }
-
-        return builder.build();
-    }
+    private String imagem; // Base64
+    private Boolean ativo;
+    private LocalDateTime dataCriacao;
 
     public static LocalPousoDTO fromEntity(LocalPouso localPouso) {
-        return fromEntity(localPouso, false);
+        return fromEntity(localPouso, true);
+    }
+
+    public static LocalPousoDTO fromEntity(LocalPouso localPouso, boolean incluirImagem) {
+        if (localPouso == null) {
+            return null;
+        }
+
+        return LocalPousoDTO.builder()
+                .id(localPouso.getId())
+                .nome(localPouso.getNome())
+                .imagem(incluirImagem ? localPouso.getImagem() : null)
+                .ativo(localPouso.getAtivo())
+                .dataCriacao(localPouso.getDataCriacao())
+                .build();
     }
 }

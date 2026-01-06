@@ -1,48 +1,38 @@
 package com.aviacao.gerenciamento_pilotos.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "local_pouso")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@SQLRestriction("ativo = true")
 public class LocalPouso {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "aluno_id", nullable = false)
-    private Aluno aluno;
-
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, unique = true)
     private String nome;
 
-    @Column(name = "foto_nome")
-    private String fotoNome;
-
-    @Column(name = "foto_tipo")
-    private String fotoTipo;  // mimetype (image/jpeg, image/png, etc)
-
-    @Column(name = "foto_tamanho")
-    private Long fotoTamanho;  // tamanho em bytes
-
     @Lob
-    @Column(name = "foto_dados", columnDefinition = "LONGBLOB")
-    private byte[] fotoDados;  // arquivo em base64/bytes
+    @Column(name = "imagem", columnDefinition = "LONGTEXT")
+    private String imagem; // Base64
 
-    @Column(name = "data_cadastro", updatable = false)
-    private LocalDateTime dataCadastro;
+    @Column(nullable = false)
+    private Boolean ativo = true;
 
-    @PrePersist
-    protected void onCreate() {
-        dataCadastro = LocalDateTime.now();
-    }
+    @OneToMany(mappedBy = "localPouso", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AlunoLocalPouso> alunoLocaisPouso = new ArrayList<>();
+
+    @CreationTimestamp
+    @Column(name = "data_criacao", updatable = false)
+    private LocalDateTime dataCriacao;
 }
