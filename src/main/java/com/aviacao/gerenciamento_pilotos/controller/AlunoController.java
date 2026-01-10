@@ -191,9 +191,9 @@ public class AlunoController {
     }
 
     @GetMapping("/{alunoId}/locais-pouso")
-    public ResponseEntity<List<AlunoLocalPousoDTO>> listarLocaisPousoDoAluno(@PathVariable Long alunoId) {
-        List<AlunoLocalPousoDTO> locais = alunoLocalPousoService.listarLocaisPousoDoAluno(alunoId);
-        return ResponseEntity.ok(locais);
+    public ResponseEntity<AlunoComLocaisPousoDTO> listarLocaisPousoDoAluno(@PathVariable Long alunoId) {
+        AlunoComLocaisPousoDTO response = alunoLocalPousoService.listarLocaisPousoDoAluno(alunoId);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{alunoId}/locais-pouso/{localPousoId}/autorizar")

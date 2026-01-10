@@ -9,15 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AlunoLocalPousoDTO {
+public class LocalPousoComAutorizacaoDTO {
 
-    private Long alunoId;
-    private String alunoNome;
-    private Integer alunoPassaporte;
-
-    private Long localPousoId;
-    private String localPousoNome;
-    private String localPousoImagem;
-
+    private Long id;
+    private String nome;
+    private String imagem;
+    private Boolean ativo;
     private Boolean autorizado;
 }

@@ -3,7 +3,8 @@ package com.aviacao.gerenciamento_pilotos.service;
 import com.aviacao.gerenciamento_pilotos.domain.entity.Aluno;
 import com.aviacao.gerenciamento_pilotos.domain.entity.AlunoLocalPouso;
 import com.aviacao.gerenciamento_pilotos.domain.entity.LocalPouso;
-import com.aviacao.gerenciamento_pilotos.dto.response.AlunoLocalPousoDTO;
+import com.aviacao.gerenciamento_pilotos.dto.response.AlunoComLocaisPousoDTO;
+import com.aviacao.gerenciamento_pilotos.dto.response.LocalPousoComAutorizacaoDTO;
 import com.aviacao.gerenciamento_pilotos.exception.BusinessException;
 import com.aviacao.gerenciamento_pilotos.repository.AlunoLocalPousoRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,35 +23,32 @@ public class AlunoLocalPousoService {
     private final LocalPousoService localPousoService;
 
     @Transactional(readOnly = true)
-    public List<AlunoLocalPousoDTO> listarLocaisPousoDoAluno(Long alunoId) {
-        // ✅ Busca o aluno
+    public AlunoComLocaisPousoDTO listarLocaisPousoDoAluno(Long alunoId) {
         Aluno aluno = alunoService.buscarPorId(alunoId);
-
-        // ✅ Busca os vínculos do aluno com locais de pouso
         List<AlunoLocalPouso> vinculos = alunoLocalPousoRepository.findByAlunoId(alunoId);
-
-        // ✅ Busca todos os locais de pouso ativos
         List<LocalPouso> todosLocais = localPousoService.listarTodos();
 
-        return todosLocais.stream()
+        List<LocalPousoComAutorizacaoDTO> locaisComAutorizacao = todosLocais.stream()
                 .map(local -> {
                     boolean autorizado = vinculos.stream()
                             .anyMatch(v -> v.getLocalPouso().getId().equals(local.getId()) && v.getAutorizado());
 
-                    return AlunoLocalPousoDTO.builder()
-                            // ✅ Dados do Aluno
-                            .alunoId(aluno.getId())
-                            .alunoNome(aluno.getNome())
-                            .alunoPassaporte(aluno.getPassaporte())
-                            // ✅ Dados do Local de Pouso
-                            .localPousoId(local.getId())
-                            .localPousoNome(local.getNome())
-                            .localPousoImagem(local.getImagem())
-                            // ✅ Status
+                    return LocalPousoComAutorizacaoDTO.builder()
+                            .id(local.getId())
+                            .nome(local.getNome())
+                            .imagem(local.getImagem())
+                            .ativo(local.getAtivo())
                             .autorizado(autorizado)
                             .build();
                 })
                 .collect(Collectors.toList());
+
+        return AlunoComLocaisPousoDTO.builder()
+                .alunoId(aluno.getId())
+                .alunoNome(aluno.getNome())
+                .alunoPassaporte(aluno.getPassaporte())
+                .locaisPouso(locaisComAutorizacao)
+                .build();
     }
 
     @Transactional
