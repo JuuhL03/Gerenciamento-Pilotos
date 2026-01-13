@@ -1,17 +1,20 @@
 package com.aviacao.gerenciamento_pilotos.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "local_pouso")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @SQLRestriction("ativo = true")
 public class LocalPouso {
 
@@ -19,20 +22,27 @@ public class LocalPouso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String nome;
 
-    @Lob
-    @Column(name = "imagem", columnDefinition = "LONGTEXT")
-    private String imagem; // Base64
+    @Column(name = "imagem_url", length = 500)
+    private String imagemUrl;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "aluno_id", nullable = false)
+    private Aluno aluno;
 
     @Column(nullable = false)
     private Boolean ativo = true;
 
-    @OneToMany(mappedBy = "localPouso", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AlunoLocalPouso> alunoLocaisPouso = new ArrayList<>();
-
-    @CreationTimestamp
-    @Column(name = "data_criacao", updatable = false)
+    @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
+
+    @PrePersist
+    protected void onCreate() {
+        this.dataCriacao = LocalDateTime.now();
+        if (this.ativo == null) {
+            this.ativo = true;
+        }
+    }
 }

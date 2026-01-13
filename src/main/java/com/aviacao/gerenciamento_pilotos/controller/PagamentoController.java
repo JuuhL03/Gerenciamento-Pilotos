@@ -4,8 +4,6 @@ import com.aviacao.gerenciamento_pilotos.domain.entity.Pagamento;
 import com.aviacao.gerenciamento_pilotos.dto.request.AtualizarPagamentoRequest;
 import com.aviacao.gerenciamento_pilotos.dto.request.CadastrarPagamentoRequest;
 import com.aviacao.gerenciamento_pilotos.dto.response.PagamentoDTO;
-import com.aviacao.gerenciamento_pilotos.exception.BusinessException;
-import com.aviacao.gerenciamento_pilotos.exception.NotFoundException;
 import com.aviacao.gerenciamento_pilotos.service.PagamentoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +27,7 @@ public class PagamentoController {
     @GetMapping("/{id}/comprovante")
     public ResponseEntity<PagamentoDTO> buscarComComprovante(@PathVariable Long id) {
         Pagamento pagamento = pagamentoService.buscarPorId(id);
-        return ResponseEntity.ok(PagamentoDTO.fromEntity(pagamento, true));  // ← Inclui imagem
+        return ResponseEntity.ok(PagamentoDTO.fromEntity(pagamento, true));
     }
 
     @GetMapping("/teste/{testeId}")
@@ -41,17 +39,16 @@ public class PagamentoController {
     @GetMapping("/teste/{testeId}/comprovante")
     public ResponseEntity<PagamentoDTO> buscarPorTesteComComprovante(@PathVariable Long testeId) {
         Pagamento pagamento = pagamentoService.buscarPorTesteId(testeId);
-        return ResponseEntity.ok(PagamentoDTO.fromEntity(pagamento, true));  // ← Inclui imagem
+        return ResponseEntity.ok(PagamentoDTO.fromEntity(pagamento, true));
     }
 
     @PostMapping
     public ResponseEntity<PagamentoDTO> cadastrar(@Valid @RequestBody CadastrarPagamentoRequest request) {
+        // ✅ CORRIGIDO: Apenas 3 parâmetros
         Pagamento pagamento = pagamentoService.cadastrar(
                 request.getTesteId(),
-                request.getValor(), // ← ADICIONE!
-                request.getComprovanteBase64(),
-                request.getComprovanteNome(),
-                request.getComprovanteTipo()
+                request.getValor(),
+                request.getComprovanteBase64() // ✅ Só o base64 (será convertido em URL)
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(PagamentoDTO.fromEntity(pagamento, false));
@@ -62,12 +59,11 @@ public class PagamentoController {
             @PathVariable Long testeId,
             @Valid @RequestBody AtualizarPagamentoRequest request) {
 
+        // ✅ CORRIGIDO: Apenas 3 parâmetros
         Pagamento pagamento = pagamentoService.atualizar(
                 testeId,
                 request.getValor(),
-                request.getComprovanteBase64(),
-                request.getComprovanteNome(),
-                request.getComprovanteTipo()
+                request.getComprovanteBase64() // ✅ Só o base64 (será convertido em URL)
         );
 
         return ResponseEntity.ok(PagamentoDTO.fromEntity(pagamento, false));

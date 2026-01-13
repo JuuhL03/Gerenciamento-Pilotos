@@ -1,17 +1,12 @@
 package com.aviacao.gerenciamento_pilotos.controller;
 
 import com.aviacao.gerenciamento_pilotos.domain.entity.Aluno;
+import com.aviacao.gerenciamento_pilotos.domain.entity.LocalPouso;
 import com.aviacao.gerenciamento_pilotos.domain.entity.Teste;
 import com.aviacao.gerenciamento_pilotos.domain.enums.StatusTeste;
-import com.aviacao.gerenciamento_pilotos.dto.request.AlterarStatusTesteRequest;
-import com.aviacao.gerenciamento_pilotos.dto.request.AtribuirAvaliadorRequest;
-import com.aviacao.gerenciamento_pilotos.dto.request.AtualizacaoAlunoRequest;
-import com.aviacao.gerenciamento_pilotos.dto.request.CadastroAlunoRequest;
+import com.aviacao.gerenciamento_pilotos.dto.request.*;
 import com.aviacao.gerenciamento_pilotos.dto.response.*;
-import com.aviacao.gerenciamento_pilotos.service.AlunoAeronaveService;
-import com.aviacao.gerenciamento_pilotos.service.AlunoLocalPousoService;
-import com.aviacao.gerenciamento_pilotos.service.AlunoService;
-import com.aviacao.gerenciamento_pilotos.service.TesteService;
+import com.aviacao.gerenciamento_pilotos.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,6 +27,7 @@ public class AlunoController {
     private final TesteService testeService;
     private final AlunoAeronaveService alunoAeronaveService;
     private final AlunoLocalPousoService alunoLocalPousoService;
+    private final LocalPousoService localPousoService;
 
     @GetMapping
     public ResponseEntity<Page<AlunoResumoDTO>> listar(
@@ -190,33 +186,69 @@ public class AlunoController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{alunoId}/locais-pouso")
-    public ResponseEntity<AlunoComLocaisPousoDTO> listarLocaisPousoDoAluno(@PathVariable Long alunoId) {
-        AlunoComLocaisPousoDTO response = alunoLocalPousoService.listarLocaisPousoDoAluno(alunoId);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/{alunoId}/locais-pouso/{localPousoId}/autorizar")
-    public ResponseEntity<Void> autorizarLocalPouso(
-            @PathVariable Long alunoId,
-            @PathVariable Long localPousoId) {
-
-        alunoLocalPousoService.autorizarAluno(alunoId, localPousoId);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{alunoId}/locais-pouso/{localPousoId}/desautorizar")
-    public ResponseEntity<Void> desautorizarLocalPouso(
-            @PathVariable Long alunoId,
-            @PathVariable Long localPousoId) {
-
-        alunoLocalPousoService.desautorizarAluno(alunoId, localPousoId);
-        return ResponseEntity.ok().build();
-    }
-
+    /**
+     * Lista todos os alunos com seus instrutores e locais de pouso
+     */
     @GetMapping("/locais-pouso")
-    public ResponseEntity<List<AlunoComLocaisEInstrutorDTO>> listarTodosAlunosComLocaisPouso() {
-        List<AlunoComLocaisEInstrutorDTO> response = alunoLocalPousoService.listarTodosAlunosComLocaisPouso();
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<AlunoComLocaisEInstrutorDTO>> listarAlunosComLocaisPouso() {
+        List<AlunoComLocaisEInstrutorDTO> alunos = alunoLocalPousoService.listarTodosAlunosComLocaisPouso();
+        return ResponseEntity.ok(alunos);
+    }
+
+    /**
+     * Lista os locais de pouso de um aluno específico
+     */
+    @GetMapping("/{alunoId}/locais-pouso")
+    public ResponseEntity<List<LocalPousoDTO>> listarLocaisPorAluno(@PathVariable Long alunoId) {
+        List<LocalPouso> locais = localPousoService.listarPorAluno(alunoId);
+        List<LocalPousoDTO> dtos = locais.stream()
+                .map(LocalPousoDTO::fromEntity)
+                .toList();
+        return ResponseEntity.ok(dtos);
+    }
+
+    /**
+     * Cadastra um novo local de pouso para um aluno
+     */
+    @PostMapping("/{alunoId}/locais-pouso")
+    public ResponseEntity<LocalPousoDTO> cadastrarLocalPouso(
+            @PathVariable Long alunoId,
+            @Valid @RequestBody CadastrarLocalPousoRequest request) {
+
+        LocalPouso localPouso = LocalPouso.builder()
+                .nome(request.getNome())
+                .build();
+
+        LocalPouso saved = localPousoService.cadastrar(localPouso, alunoId, request.getImagemUrl());
+
+        // ✅ RETORNAR DTO
+        return ResponseEntity.status(HttpStatus.CREATED).body(LocalPousoDTO.fromEntity(saved));
+    }
+
+    /**
+     * Atualiza um local de pouso existente
+     */
+    @PutMapping("/locais-pouso/{localId}")
+    public ResponseEntity<LocalPousoDTO> atualizarLocalPouso(
+            @PathVariable Long localId,
+            @Valid @RequestBody AtualizarLocalPousoRequest request) {
+
+        LocalPouso atualizado = localPousoService.atualizar(
+                localId,
+                request.getNome(),
+                request.getImagemUrl()
+        );
+
+        // ✅ RETORNAR DTO
+        return ResponseEntity.ok(LocalPousoDTO.fromEntity(atualizado));
+    }
+
+    /**
+     * Deleta (soft delete) um local de pouso
+     */
+    @DeleteMapping("/locais-pouso/{localId}")
+    public ResponseEntity<Void> deletarLocalPouso(@PathVariable Long localId) {
+        localPousoService.deletar(localId);
+        return ResponseEntity.noContent().build();
     }
 }

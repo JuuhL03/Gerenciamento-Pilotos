@@ -6,5 +6,5 @@ import lombok.Data;
 public class AtualizarLocalPousoRequest {
 
     private String nome;
-    private String imagem; // Base64
+    private String imagemUrl;
 }

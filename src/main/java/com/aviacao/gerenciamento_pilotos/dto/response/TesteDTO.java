@@ -47,7 +47,9 @@ public class TesteDTO {
                 .avaliadorNome(teste.getAvaliador() != null ? teste.getAvaliador().getNome() : null)
                 .dataCriacao(teste.getDataCriacao())
                 .dataFinalizacao(teste.getDataFinalizacao())
-                .pagamento(teste.getPagamento() != null ? PagamentoDTO.fromEntity(teste.getPagamento(), incluirComprovante) : null)
+                .pagamento(teste.getPagamento() != null
+                        ? PagamentoDTO.fromEntity(teste.getPagamento(), incluirComprovante)
+                        : null)
                 .build();
     }
 }

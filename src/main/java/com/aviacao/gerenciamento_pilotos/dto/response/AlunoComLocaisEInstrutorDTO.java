@@ -16,9 +16,7 @@ public class AlunoComLocaisEInstrutorDTO {
     private Long alunoId;
     private String alunoNome;
     private Integer alunoPassaporte;
-
     private Long instrutorId;
     private String instrutorNome;
-
-    private List<LocalPousoComAutorizacaoDTO> locaisPouso;
+    private List<LocalPousoSimplesDTO> locaisPouso;
 }

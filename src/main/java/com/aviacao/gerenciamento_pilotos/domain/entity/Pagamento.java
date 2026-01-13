@@ -1,8 +1,10 @@
 package com.aviacao.gerenciamento_pilotos.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,40 +12,40 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "pagamento")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Pagamento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "teste_id", unique = true, nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "teste_id", nullable = false)
     private Teste teste;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "aluno_id", nullable = false)
     private Aluno aluno;
 
     @Column(nullable = false)
     private Boolean pago = true;
 
-    @Column(precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valor;
 
-    @Column(name = "comprovante_nome")
-    private String comprovanteNome;
+    @Column(name = "comprovante_url", length = 500)
+    private String comprovanteUrl; // ✅ APENAS URL
 
-    @Column(name = "comprovante_tipo")
-    private String comprovanteTipo;
+    @Column(name = "data_criacao", nullable = false, updatable = false)
+    private LocalDateTime dataCriacao;
 
-    @Column(name = "comprovante_tamanho")
-    private Long comprovanteTamanho;
-
-    @Lob
-    @Column(name = "comprovante_dados", columnDefinition = "LONGBLOB")
-    private byte[] comprovanteDados;
-
-    @CreationTimestamp
-    @Column(name = "data_pagamento", updatable = false)
-    private LocalDateTime dataPagamento;
+    @PrePersist
+    protected void onCreate() {
+        this.dataCriacao = LocalDateTime.now();
+        if (this.pago == null) {
+            this.pago = true;
+        }
+    }
 }

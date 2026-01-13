@@ -12,23 +12,19 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LocalPousoDTO {
+public class LocalPousoSimplesDTO {
 
     private Long id;
     private String nome;
     private String imagemUrl;
-    private Long alunoId;
-    private String alunoNome;
     private Boolean ativo;
     private LocalDateTime dataCriacao;
 
-    public static LocalPousoDTO fromEntity(LocalPouso localPouso) {
-        return LocalPousoDTO.builder()
+    public static LocalPousoSimplesDTO fromEntity(LocalPouso localPouso) {
+        return LocalPousoSimplesDTO.builder()
                 .id(localPouso.getId())
                 .nome(localPouso.getNome())
                 .imagemUrl(localPouso.getImagemUrl())
-                .alunoId(localPouso.getAluno() != null ? localPouso.getAluno().getId() : null)
-                .alunoNome(localPouso.getAluno() != null ? localPouso.getAluno().getNome() : null)
                 .ativo(localPouso.getAtivo())
                 .dataCriacao(localPouso.getDataCriacao())
                 .build();

@@ -9,5 +9,5 @@ public class CadastrarLocalPousoRequest {
     @NotBlank(message = "Nome é obrigatório")
     private String nome;
 
-    private String imagem; // Base64 (opcional)
+    private String imagemUrl;
 }

@@ -13,7 +13,7 @@ public class LocalPousoComAutorizacaoDTO {
 
     private Long id;
     private String nome;
-    private String imagem;
+    private String imagemUrl;
     private Boolean ativo;
     private Boolean autorizado;
 }
