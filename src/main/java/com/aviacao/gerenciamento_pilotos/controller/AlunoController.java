@@ -213,4 +213,10 @@ public class AlunoController {
         alunoLocalPousoService.desautorizarAluno(alunoId, localPousoId);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/locais-pouso")
+    public ResponseEntity<List<AlunoComLocaisEInstrutorDTO>> listarTodosAlunosComLocaisPouso() {
+        List<AlunoComLocaisEInstrutorDTO> response = alunoLocalPousoService.listarTodosAlunosComLocaisPouso();
+        return ResponseEntity.ok(response);
+    }
 }

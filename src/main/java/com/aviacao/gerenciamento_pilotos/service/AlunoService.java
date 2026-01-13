@@ -114,4 +114,9 @@ public class AlunoService {
         aluno.setAtivo(false);
         alunoRepository.save(aluno);
     }
+
+    @Transactional(readOnly = true)
+    public List<Aluno> listarTodos() {
+        return alunoRepository.findAll();
+    }
 }
