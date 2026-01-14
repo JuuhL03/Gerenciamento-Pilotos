@@ -2,11 +2,14 @@ package com.aviacao.gerenciamento_pilotos.service;
 
 import com.aviacao.gerenciamento_pilotos.domain.entity.Aluno;
 import com.aviacao.gerenciamento_pilotos.domain.entity.LocalPouso;
-import com.aviacao.gerenciamento_pilotos.domain.entity.Teste;
 import com.aviacao.gerenciamento_pilotos.dto.response.AlunoComLocaisEInstrutorDTO;
 import com.aviacao.gerenciamento_pilotos.dto.response.LocalPousoSimplesDTO;
 import com.aviacao.gerenciamento_pilotos.repository.AlunoRepository;
+import com.aviacao.gerenciamento_pilotos.repository.LocalPousoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,30 +21,34 @@ import java.util.stream.Collectors;
 public class AlunoLocalPousoService {
 
     private final AlunoRepository alunoRepository;
-    private final LocalPousoService localPousoService;
+    private final LocalPousoRepository localPousoRepository;
 
     @Transactional(readOnly = true)
-    public List<AlunoComLocaisEInstrutorDTO> listarTodosAlunosComLocaisPouso() {
-        List<Aluno> alunos = alunoRepository.findAll();
+    public Page<AlunoComLocaisEInstrutorDTO> listarTodosAlunosComLocaisPouso(Pageable pageable) {
+        // Buscar alunos paginados
+        Page<Aluno> alunosPage = alunoRepository.findAll(pageable);
 
-        return alunos.stream()
+        // Converter para DTO com locais de pouso
+        List<AlunoComLocaisEInstrutorDTO> dtos = alunosPage.getContent().stream()
                 .map(aluno -> {
-                    // ✅ Buscar locais de pouso DESTE aluno
-                    List<LocalPouso> locaisDoAluno = localPousoService.listarPorAluno(aluno.getId());
+                    // Buscar locais de pouso do aluno
+                    List<LocalPouso> locaisPouso = localPousoRepository.findByAlunoIdWithAlunoFetched(aluno.getId());
 
-                    // ✅ Converter para DTO SIMPLES (sem dados do aluno)
-                    List<LocalPousoSimplesDTO> locaisDTO = locaisDoAluno.stream()
-                            .map(LocalPousoSimplesDTO::fromEntity) // ✅ MUDOU
+                    // Converter locais para DTO simples
+                    List<LocalPousoSimplesDTO> locaisDTOs = locaisPouso.stream()
+                            .map(LocalPousoSimplesDTO::fromEntity)
                             .collect(Collectors.toList());
 
-                    // ✅ Buscar instrutor do teste atual
-                    Teste testeAtual = aluno.getTesteAtual();
+                    // Obter instrutor (se houver teste)
                     Long instrutorId = null;
                     String instrutorNome = null;
 
-                    if (testeAtual != null && testeAtual.getAvaliador() != null) {
-                        instrutorId = testeAtual.getAvaliador().getId();
-                        instrutorNome = testeAtual.getAvaliador().getNome();
+                    if (!aluno.getTestes().isEmpty()) {
+                        var primeiroTeste = aluno.getTestes().get(0);
+                        if (primeiroTeste.getAvaliador() != null) {
+                            instrutorId = primeiroTeste.getAvaliador().getId();
+                            instrutorNome = primeiroTeste.getAvaliador().getNome();
+                        }
                     }
 
                     return AlunoComLocaisEInstrutorDTO.builder()
@@ -50,9 +57,12 @@ public class AlunoLocalPousoService {
                             .alunoPassaporte(aluno.getPassaporte())
                             .instrutorId(instrutorId)
                             .instrutorNome(instrutorNome)
-                            .locaisPouso(locaisDTO)
+                            .locaisPouso(locaisDTOs)
                             .build();
                 })
                 .collect(Collectors.toList());
+
+        // Retornar Page com os DTOs
+        return new PageImpl<>(dtos, pageable, alunosPage.getTotalElements());
     }
 }

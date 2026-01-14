@@ -10,7 +10,9 @@ import com.aviacao.gerenciamento_pilotos.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -190,8 +192,28 @@ public class AlunoController {
      * Lista todos os alunos com seus instrutores e locais de pouso
      */
     @GetMapping("/locais-pouso")
-    public ResponseEntity<List<AlunoComLocaisEInstrutorDTO>> listarAlunosComLocaisPouso() {
-        List<AlunoComLocaisEInstrutorDTO> alunos = alunoLocalPousoService.listarTodosAlunosComLocaisPouso();
+    public ResponseEntity<Page<AlunoComLocaisEInstrutorDTO>> listarAlunosComLocaisPouso(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "nome") String sort,
+            @RequestParam(defaultValue = "asc") String direction) {
+
+        if (page < 0) page = 0;
+        if (size < 1) size = 10;
+        if (size > 100) size = 100;
+
+        String sortField = switch (sort.toLowerCase()) {
+            case "nome", "passaporte", "id" -> sort;
+            default -> "nome";
+        };
+
+        Sort sortObj = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortField).descending()
+                : Sort.by(sortField).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sortObj);
+        Page<AlunoComLocaisEInstrutorDTO> alunos = alunoLocalPousoService.listarTodosAlunosComLocaisPouso(pageable);
+
         return ResponseEntity.ok(alunos);
     }
 
