@@ -2,11 +2,13 @@ package com.aviacao.gerenciamento_pilotos.service;
 
 import com.aviacao.gerenciamento_pilotos.domain.entity.Aluno;
 import com.aviacao.gerenciamento_pilotos.domain.entity.LocalPouso;
+import com.aviacao.gerenciamento_pilotos.domain.enums.StatusTeste;
 import com.aviacao.gerenciamento_pilotos.dto.response.AlunoComLocaisEInstrutorDTO;
 import com.aviacao.gerenciamento_pilotos.dto.response.LocalPousoSimplesDTO;
 import com.aviacao.gerenciamento_pilotos.repository.AlunoRepository;
 import com.aviacao.gerenciamento_pilotos.repository.LocalPousoRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AlunoLocalPousoService {
 
     private final AlunoRepository alunoRepository;
@@ -25,12 +28,18 @@ public class AlunoLocalPousoService {
 
     @Transactional(readOnly = true)
     public Page<AlunoComLocaisEInstrutorDTO> listarTodosAlunosComLocaisPouso(Pageable pageable) {
-        // Buscar alunos paginados
-        Page<Aluno> alunosPage = alunoRepository.findAll(pageable);
+        log.info("🔍 Buscando alunos com teste AUTORIZADO - Paginação: {}", pageable);
 
-        // Converter para DTO com locais de pouso
+        // ✅ Buscar SOMENTE alunos que TÊM teste AUTORIZADO
+        Page<Aluno> alunosPage = alunoRepository.findAlunosComTesteAutorizado(pageable);
+
+        log.info("✅ Encontrados {} alunos com teste AUTORIZADO", alunosPage.getTotalElements());
+
         List<AlunoComLocaisEInstrutorDTO> dtos = alunosPage.getContent().stream()
                 .map(aluno -> {
+                    log.debug("👤 Processando aluno: {} (tem teste autorizado: {})",
+                            aluno.getNome(), aluno.temTesteAutorizado());
+
                     // Buscar locais de pouso do aluno
                     List<LocalPouso> locaisPouso = localPousoRepository.findByAlunoIdWithAlunoFetched(aluno.getId());
 
@@ -39,15 +48,19 @@ public class AlunoLocalPousoService {
                             .map(LocalPousoSimplesDTO::fromEntity)
                             .collect(Collectors.toList());
 
-                    // Obter instrutor (se houver teste)
+                    // Obter instrutor do primeiro teste AUTORIZADO
                     Long instrutorId = null;
                     String instrutorNome = null;
 
-                    if (!aluno.getTestes().isEmpty()) {
-                        var primeiroTeste = aluno.getTestes().get(0);
-                        if (primeiroTeste.getAvaliador() != null) {
-                            instrutorId = primeiroTeste.getAvaliador().getId();
-                            instrutorNome = primeiroTeste.getAvaliador().getNome();
+                    if (aluno.getTestes() != null) {
+                        var testeAutorizado = aluno.getTestes().stream()
+                                .filter(t -> t.getAtivo() && t.getStatus() == StatusTeste.APROVADO)
+                                .findFirst()
+                                .orElse(null);
+
+                        if (testeAutorizado != null && testeAutorizado.getAvaliador() != null) {
+                            instrutorId = testeAutorizado.getAvaliador().getId();
+                            instrutorNome = testeAutorizado.getAvaliador().getNome();
                         }
                     }
 
@@ -62,7 +75,8 @@ public class AlunoLocalPousoService {
                 })
                 .collect(Collectors.toList());
 
-        // Retornar Page com os DTOs
+        log.info("✅ Retornando {} alunos com locais de pouso", dtos.size());
+
         return new PageImpl<>(dtos, pageable, alunosPage.getTotalElements());
     }
 }

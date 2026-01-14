@@ -17,8 +17,5 @@ public class CadastrarPagamentoRequest {
     @NotNull(message = "Teste ID é obrigatório")
     private Long testeId;
 
-    @NotNull(message = "Valor é obrigatório")
-    private BigDecimal valor;
-
     private String comprovanteBase64;
 }

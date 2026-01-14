@@ -47,7 +47,6 @@ public class PagamentoController {
         // ✅ CORRIGIDO: Apenas 3 parâmetros
         Pagamento pagamento = pagamentoService.cadastrar(
                 request.getTesteId(),
-                request.getValor(),
                 request.getComprovanteBase64() // ✅ Só o base64 (será convertido em URL)
         );
 
@@ -62,7 +61,6 @@ public class PagamentoController {
         // ✅ CORRIGIDO: Apenas 3 parâmetros
         Pagamento pagamento = pagamentoService.atualizar(
                 testeId,
-                request.getValor(),
                 request.getComprovanteBase64() // ✅ Só o base64 (será convertido em URL)
         );
 

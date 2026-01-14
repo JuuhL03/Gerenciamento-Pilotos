@@ -57,7 +57,6 @@ public class AlunoService {
             throw new BusinessException("Já existe um aluno com o passaporte: " + aluno.getPassaporte());
         }
 
-        aluno.setAutorizado(false);
         aluno.setAtivo(true);
 
         Aluno alunoSalvo = alunoRepository.save(aluno);
@@ -88,10 +87,6 @@ public class AlunoService {
 
         if (alunoAtualizado.getTelefone() != null) {
             aluno.setTelefone(alunoAtualizado.getTelefone());
-        }
-
-        if (alunoAtualizado.getAutorizado() != null) {
-            aluno.setAutorizado(alunoAtualizado.getAutorizado());
         }
 
         return alunoRepository.save(aluno);

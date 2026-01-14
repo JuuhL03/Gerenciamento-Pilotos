@@ -20,7 +20,6 @@ public class PagamentoDTO {
     private Long alunoId;
     private String alunoNome;
     private Boolean pago;
-    private BigDecimal valor;
     private String comprovanteUrl;
     private LocalDateTime dataCriacao;
 
@@ -47,7 +46,6 @@ public class PagamentoDTO {
                 .alunoId(pagamento.getAluno() != null ? pagamento.getAluno().getId() : null)
                 .alunoNome(pagamento.getAluno() != null ? pagamento.getAluno().getNome() : null)
                 .pago(pagamento.getPago())
-                .valor(pagamento.getValor())
                 .comprovanteUrl(incluirComprovante ? pagamento.getComprovanteUrl() : null)
                 .dataCriacao(pagamento.getDataCriacao())
                 .build();

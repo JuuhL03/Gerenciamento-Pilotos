@@ -24,7 +24,7 @@ public class PagamentoService {
     private final CloudinaryService cloudinaryService;
 
     @Transactional
-    public Pagamento cadastrar(Long testeId, BigDecimal valor, String comprovanteBase64) {
+    public Pagamento cadastrar(Long testeId, String comprovanteBase64) {
         // Buscar teste
         Teste teste = testeRepository.findById(testeId)
                 .orElseThrow(() -> new NotFoundException("Teste não encontrado com ID: " + testeId));
@@ -39,7 +39,6 @@ public class PagamentoService {
         Pagamento pagamento = Pagamento.builder()
                 .teste(teste)
                 .aluno(aluno)
-                .valor(valor)
                 .pago(true)
                 .build();
 
@@ -61,14 +60,9 @@ public class PagamentoService {
     }
 
     @Transactional
-    public Pagamento atualizar(Long testeId, BigDecimal novoValor, String novoComprovanteBase64) {
+    public Pagamento atualizar(Long testeId, String novoComprovanteBase64) {
         Pagamento pagamento = pagamentoRepository.findByTesteId(testeId)
                 .orElseThrow(() -> new NotFoundException("Pagamento não encontrado para o teste ID: " + testeId));
-
-        // Atualizar valor se fornecido
-        if (novoValor != null) {
-            pagamento.setValor(novoValor);
-        }
 
         // Atualizar comprovante se fornecido
         if (novoComprovanteBase64 != null && !novoComprovanteBase64.trim().isEmpty()) {

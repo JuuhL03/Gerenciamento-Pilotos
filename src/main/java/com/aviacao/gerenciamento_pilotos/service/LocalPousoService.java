@@ -24,25 +24,33 @@ public class LocalPousoService {
 
     @Transactional(readOnly = true)
     public List<LocalPouso> listarPorAluno(Long alunoId) {
-        if (!alunoRepository.existsById(alunoId)) {
-            throw new NotFoundException("Aluno não encontrado com ID: " + alunoId);
+        Aluno aluno = alunoRepository.findById(alunoId)
+                .orElseThrow(() -> new NotFoundException("Aluno não encontrado com ID: " + alunoId));
+
+        // ✅ NOVA VALIDAÇÃO: Verificar se tem teste AUTORIZADO
+        if (!aluno.temTesteAutorizado()) {
+            throw new BusinessException("Aluno não possui teste autorizado para ter locais de pouso");
         }
-        // ✅ USA O MÉTODO COM JOIN FETCH
+
         return localPousoRepository.findByAlunoIdWithAlunoFetched(alunoId);
     }
 
     @Transactional
     public LocalPouso cadastrar(LocalPouso localPouso, Long alunoId, String imagemBase64) {
-        // Buscar aluno
         Aluno aluno = alunoRepository.findById(alunoId)
                 .orElseThrow(() -> new NotFoundException("Aluno não encontrado com ID: " + alunoId));
+
+        // ✅ NOVA VALIDAÇÃO: Verificar se tem teste AUTORIZADO
+        if (!aluno.temTesteAutorizado()) {
+            throw new BusinessException("Aluno não possui teste autorizado para cadastrar locais de pouso");
+        }
 
         // Verificar nome duplicado
         if (localPousoRepository.existsByNomeAndAlunoId(localPouso.getNome(), alunoId)) {
             throw new BusinessException("Já existe um local de pouso com o nome '" + localPouso.getNome() + "' para este aluno");
         }
 
-        // Upload da imagem no Cloudinary (se fornecida) com pasta do aluno
+        // Upload da imagem no Cloudinary (se fornecida)
         if (imagemBase64 != null && !imagemBase64.trim().isEmpty()) {
             String alunoFolder = cloudinaryService.sanitizeFolderName(aluno.getNome());
             String imageUrl = cloudinaryService.uploadBase64Image(imagemBase64, "local_pouso", alunoFolder);
@@ -50,14 +58,11 @@ public class LocalPousoService {
             log.info("✅ Imagem enviada para Cloudinary: {}", imageUrl);
         }
 
-        // Associar aluno
         localPouso.setAluno(aluno);
         localPouso.setAtivo(true);
 
         LocalPouso saved = localPousoRepository.save(localPouso);
-
-        // ✅ FORÇA O CARREGAMENTO DO ALUNO ANTES DE SAIR DA TRANSAÇÃO
-        saved.getAluno().getNome(); // Hibernate vai carregar o aluno
+        saved.getAluno().getNome();
 
         return saved;
     }
@@ -67,9 +72,13 @@ public class LocalPousoService {
         LocalPouso localPouso = localPousoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Local de pouso não encontrado com ID: " + id));
 
+        // ✅ NOVA VALIDAÇÃO: Verificar se tem teste AUTORIZADO
+        if (!localPouso.getAluno().temTesteAutorizado()) {
+            throw new BusinessException("Aluno não possui teste autorizado para atualizar locais de pouso");
+        }
+
         // Atualizar nome se fornecido
         if (nome != null && !nome.trim().isEmpty()) {
-            // Verificar se o novo nome já existe para outro local do mesmo aluno
             if (localPousoRepository.existsByNomeAndAlunoIdAndIdNot(nome, localPouso.getAluno().getId(), id)) {
                 throw new BusinessException("Já existe outro local de pouso com o nome '" + nome + "' para este aluno");
             }
@@ -78,13 +87,11 @@ public class LocalPousoService {
 
         // Atualizar imagem se fornecida
         if (novaImagemBase64 != null && !novaImagemBase64.trim().isEmpty()) {
-            // Deletar imagem antiga se existir
             if (localPouso.getImagemUrl() != null) {
                 cloudinaryService.deleteImage(localPouso.getImagemUrl());
                 log.info("✅ Imagem antiga deletada do Cloudinary");
             }
 
-            // Upload nova imagem com pasta do aluno
             String alunoFolder = cloudinaryService.sanitizeFolderName(localPouso.getAluno().getNome());
             String novaImagemUrl = cloudinaryService.uploadBase64Image(novaImagemBase64, "local_pouso", alunoFolder);
             localPouso.setImagemUrl(novaImagemUrl);
@@ -92,8 +99,6 @@ public class LocalPousoService {
         }
 
         LocalPouso updated = localPousoRepository.save(localPouso);
-
-        // ✅ FORÇA O CARREGAMENTO DO ALUNO ANTES DE SAIR DA TRANSAÇÃO
         updated.getAluno().getNome();
 
         return updated;
@@ -104,13 +109,16 @@ public class LocalPousoService {
         LocalPouso localPouso = localPousoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Local de pouso não encontrado com ID: " + id));
 
-        // Deletar imagem do Cloudinary se existir
+        // ✅ NOVA VALIDAÇÃO: Verificar se tem teste AUTORIZADO (opcional para delete)
+        if (!localPouso.getAluno().temTesteAutorizado()) {
+            throw new BusinessException("Aluno não possui teste autorizado");
+        }
+
         if (localPouso.getImagemUrl() != null) {
             cloudinaryService.deleteImage(localPouso.getImagemUrl());
             log.info("✅ Imagem deletada do Cloudinary ao deletar local de pouso");
         }
 
-        // Soft delete
         localPouso.setAtivo(false);
         localPousoRepository.save(localPouso);
     }

@@ -1,5 +1,6 @@
 package com.aviacao.gerenciamento_pilotos.domain.entity;
 
+import com.aviacao.gerenciamento_pilotos.domain.enums.StatusTeste;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -30,9 +31,6 @@ public class Aluno {
     private String telefone;
 
     @Column(nullable = false)
-    private Boolean autorizado = false;
-
-    @Column(nullable = false)
     private Boolean ativo = true;
 
     @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -58,5 +56,13 @@ public class Aluno {
                 .filter(t -> t.getAtivo())
                 .max(Comparator.comparing(Teste::getId))
                 .orElse(null);
+    }
+
+    /**
+     * Verifica se o aluno tem pelo menos um teste AUTORIZADO
+     */
+    public boolean temTesteAutorizado() {
+        return testes != null && testes.stream()
+                .anyMatch(teste -> teste.getAtivo() && teste.getStatus() == StatusTeste.APROVADO);
     }
 }

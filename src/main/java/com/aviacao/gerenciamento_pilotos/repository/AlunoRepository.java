@@ -14,6 +14,16 @@ import java.util.Optional;
 @Repository
 public interface AlunoRepository extends JpaRepository<Aluno, Long> {
 
+    @Query("""
+        SELECT DISTINCT a FROM Aluno a 
+        JOIN a.testes t 
+        WHERE a.ativo = true 
+        AND t.ativo = true 
+        AND t.status = 'APROVADO'
+        ORDER BY a.nome ASC
+    """)
+    Page<Aluno> findAlunosComTesteAutorizado(Pageable pageable);
+
     Optional<Aluno> findByPassaporte(Integer passaporte);
 
     boolean existsByPassaporte(Integer passaporte);

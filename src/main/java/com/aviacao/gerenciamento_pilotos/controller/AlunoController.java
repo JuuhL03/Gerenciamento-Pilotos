@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class AlunoController {
     public ResponseEntity<Page<AlunoResumoDTO>> listar(
             @RequestParam(required = false) String busca,
             @RequestParam(required = false) StatusTeste status,
-            Pageable pageable) {
+            @PageableDefault(size = 20, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
 
         Page<Aluno> alunos;
 
@@ -91,7 +92,6 @@ public class AlunoController {
         aluno.setNome(request.getNome());
         aluno.setPassaporte(request.getPassaporte());
         aluno.setTelefone(request.getTelefone());
-        aluno.setAutorizado(request.getAutorizado());
 
         Aluno alunoAtualizado = alunoService.atualizar(id, aluno);
         return ResponseEntity.ok(AlunoDTO.fromEntity(alunoAtualizado));
@@ -134,22 +134,6 @@ public class AlunoController {
         testeService.alterarStatus(id, request.getStatus());
         Aluno aluno = alunoService.buscarPorId(id);
         return ResponseEntity.ok(AlunoDTO.fromEntity(aluno));
-    }
-
-    @PatchMapping("/{id}/autorizar")
-    public ResponseEntity<AlunoDTO> autorizar(@PathVariable Long id) {
-        Aluno aluno = alunoService.buscarPorId(id);
-        aluno.setAutorizado(true);
-        Aluno alunoAtualizado = alunoService.atualizar(id, aluno);
-        return ResponseEntity.ok(AlunoDTO.fromEntity(alunoAtualizado));
-    }
-
-    @PatchMapping("/{id}/desautorizar")
-    public ResponseEntity<AlunoDTO> desautorizar(@PathVariable Long id) {
-        Aluno aluno = alunoService.buscarPorId(id);
-        aluno.setAutorizado(false);
-        Aluno alunoAtualizado = alunoService.atualizar(id, aluno);
-        return ResponseEntity.ok(AlunoDTO.fromEntity(alunoAtualizado));
     }
 
     @GetMapping("/{alunoId}/aeronaves")

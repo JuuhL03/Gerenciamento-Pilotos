@@ -19,7 +19,6 @@ public class AlunoDTO {
     private String nome;
     private Integer passaporte;
     private String telefone;
-    private Boolean autorizado;
     private List<TesteDTO> testes;
     private LocalDateTime dataCriacao;
     private LocalDateTime dataUltimaAtualizacao;
@@ -42,7 +41,6 @@ public class AlunoDTO {
                 .nome(aluno.getNome())
                 .passaporte(aluno.getPassaporte())
                 .telefone(aluno.getTelefone())
-                .autorizado(aluno.getAutorizado())
                 .testes(testesDTO)
                 .dataCriacao(aluno.getDataCriacao())
                 .dataUltimaAtualizacao(aluno.getDataUltimaAtualizacao())

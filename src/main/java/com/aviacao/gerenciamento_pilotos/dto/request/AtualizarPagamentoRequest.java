@@ -13,7 +13,5 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class AtualizarPagamentoRequest {
 
-    private BigDecimal valor;
-
     private String comprovanteBase64;
 }

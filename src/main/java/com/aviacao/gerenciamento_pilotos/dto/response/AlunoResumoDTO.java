@@ -18,7 +18,6 @@ public class AlunoResumoDTO {
     private String nome;
     private Integer passaporte;
     private String telefone;
-    private Boolean autorizado;
     private TesteResumoDTO teste;
     private LocalDateTime dataCriacao;
     private LocalDateTime dataUltimaAtualizacao;
@@ -33,7 +32,6 @@ public class AlunoResumoDTO {
                 .nome(aluno.getNome())
                 .passaporte(aluno.getPassaporte())
                 .telefone(aluno.getTelefone())
-                .autorizado(aluno.getAutorizado())
                 .teste(testeAtual != null ? TesteResumoDTO.fromEntity(testeAtual) : null)
                 .dataCriacao(aluno.getDataCriacao())
                 .dataUltimaAtualizacao(aluno.getDataUltimaAtualizacao())

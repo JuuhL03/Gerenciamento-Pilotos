@@ -32,11 +32,8 @@ public class Pagamento {
     @Column(nullable = false)
     private Boolean pago = true;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal valor;
-
     @Column(name = "comprovante_url", length = 500)
-    private String comprovanteUrl; // ✅ APENAS URL
+    private String comprovanteUrl;
 
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
