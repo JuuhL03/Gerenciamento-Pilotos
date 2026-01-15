@@ -29,7 +29,7 @@ public class UsuarioController {
      * Lista TODOS os usuários (ativos e inativos) - SÓ ADMIN
      */
     @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UsuarioDTO>> listar(
             @RequestParam(required = false) Cargo cargo,
             Pageable pageable) {
@@ -50,7 +50,7 @@ public class UsuarioController {
      * Busca usuário por ID - SÓ ADMIN
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioDTO> buscarPorId(@PathVariable Long id) {
         Usuario usuario = usuarioService.buscarPorId(id);
         return ResponseEntity.ok(UsuarioDTO.fromEntity(usuario));
@@ -60,7 +60,7 @@ public class UsuarioController {
      * Cadastra novo usuário - SÓ ADMIN
      */
     @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioDTO> cadastrar(
             @Valid @RequestBody CadastroUsuarioRequest request) {
 
@@ -80,7 +80,7 @@ public class UsuarioController {
      * Atualiza usuário - SÓ ADMIN
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioDTO> atualizar(
             @PathVariable Long id,
             @Valid @RequestBody AtualizacaoUsuarioRequest request) {
@@ -113,7 +113,7 @@ public class UsuarioController {
      * Deleta (inativa) usuário - SÓ ADMIN
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         usuarioService.inativar(id);
         return ResponseEntity.noContent().build();
@@ -123,7 +123,7 @@ public class UsuarioController {
      * Reativa usuário - SÓ ADMIN
      */
     @PatchMapping("/{id}/reativar")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioDTO> reativar(@PathVariable Long id) {
         Usuario usuario = usuarioService.reativar(id);
         return ResponseEntity.ok(UsuarioDTO.fromEntity(usuario));
