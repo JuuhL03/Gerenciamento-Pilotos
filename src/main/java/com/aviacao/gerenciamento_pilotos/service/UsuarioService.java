@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
@@ -112,5 +114,14 @@ public class UsuarioService {
         if (usuarioRepository.existsByPassaporte(usuario.getPassaporte())) {
             throw new BusinessException("Passaporte já cadastrado");
         }
+    }
+
+    /**
+     * Lista somente usuários ATIVOS ordenados por nome
+     * Para uso em dropdowns/selects
+     */
+    @Transactional(readOnly = true)
+    public List<Usuario> listarAtivosResumo() {
+        return usuarioRepository.findByAtivoTrueOrderByNomeAsc();
     }
 }

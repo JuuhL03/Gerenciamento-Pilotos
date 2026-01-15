@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -25,4 +26,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>, JpaSpec
 
     @Query(value = "SELECT * FROM usuario WHERE login = :login LIMIT 1", nativeQuery = true)
     Optional<Usuario> findByLoginIgnorandoAtivo(@Param("login") String login);
+
+    List<Usuario> findByAtivoTrueOrderByNomeAsc();
 }
